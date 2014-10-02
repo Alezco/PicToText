@@ -4,5 +4,5 @@
 
 void Printlol()
 {
-	printf("Ta maman !");
+	printf("Ta maman !\n");
 }
