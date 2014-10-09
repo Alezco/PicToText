@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
+#include "GTK_test.h"
 
 void close_f (GtkWidget *widget, gpointer *data)
 {
@@ -11,11 +12,10 @@ void clicked (GtkWidget *widget, gpointer *data)
 		g_print("Bouton Clicked\n");
 }
 
-int main (int argc, char* argv[])
+int main_GTK (int argc, char* argv[])
 {
 		gtk_init(&argc,&argv);
 		GtkWidget* window, *button;
-
 		window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 		gtk_window_set_title(GTK_WINDOW(window),"WhiteDevil_Prog");
 		gtk_window_set_position(GTK_WINDOW(window),GTK_WIN_POS_CENTER);

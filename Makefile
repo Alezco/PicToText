@@ -1,5 +1,10 @@
-PicToText : main.c load_image.c
-	clang -o PicToText main.c load_image.c -Wall -Wextra -Werror -std=c99 `pkg-config --cflags --libs gtk+2.0`
+PicToText : main.c load_image.c GTK_test.c
+CC = clang
+CFLAGS = -Wall -Wextra -Werror -O2 -std=c99
+GTK_CFLAGS = $(pkg-config --libs --cflags gtk+-2.0)
+SRC = main.c
 
-clean :
+all:
+	$(CC) $(CFLAGS) $(GTK_CFLAGS) $(SRC) -o PicToText
+clean: 
 	rm -rf *.o
