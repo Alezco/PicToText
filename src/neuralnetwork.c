@@ -1,28 +1,44 @@
-#include <stdlib.h>
+nclude <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
+struct Neuron
+{
+	long double input;
+	long double output;
+	long double bias;
+	//long double weights;
+};
+
 struct Layer
 {
-	double threshold; //value for which the answer is true
-	double NumUnit; //number of neurons in the layer
+	long double numUnit;
+	long double **weights;
+	struct Neuron *neuron;
 };
 
 
-double sigmoid(double x)
+long double sigmoid(long double x)
 {
-	return (1 / (1 + exp(-x)));
+	return (1 /(1 + exp(-x)));
 }
 
-double compute(Layer l1, Layer l2)
+void ComputeSum(struct Layer *l1, struct Layer *l2)
 {
-	l.threshold = sigmoid(80);
-	return l.threshold;
+	unsigned i, j;
+	for(j = 0; j < l2->numUnit; j++)
+	{
+		for(i = 0; i < l1->numUnit; i++)
+		{
+	 		l2->neuron[j].input += l1->neuron[i].output * l1->weights[i][j];
+		}
+		l2->neuron[j].output = sigmoid(l2->neuron[j].input);
+	}
 }
 
 int main()
-{	
-	Layer l;
-	printf("%f\n", compute(l));
+{
+	printf("%Lf\n", sigmoid(4));
 	return 0;
 }
+
