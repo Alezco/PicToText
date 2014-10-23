@@ -77,7 +77,7 @@ void traitement(SDL_Surface *surface, int* tab, char info)
     }
   if (info == 'y')
     {
-      for (int y = 1; y < (surface->h) - 1; y++ )
+     for (int y = 1; y < (surface->h) - 1; y++ )
 	{
 	  if (tab[y] != tab[y+1])
 	    {
