@@ -10,6 +10,7 @@ void initializeNeuron(struct Neuron *Neural, unsigned pNumberWeights)
 		Neural->input = 0;
 		Neural->numberWeights = pNumberWeights;
 		
+		Neural->weight = malloc(sizeof(long double) * pNumberWeights);
 
 		for (w = 0; w < pNumberWeights; w++)
 				Neural->weight[w] = 0;
@@ -51,11 +52,11 @@ void ComputeSum(struct Layer *l1, struct Layer *l2)
 int main_neural()
 {
 		struct Layer Input;
-		struct Layer Hidden;
+		//struct Layer Hidden;
 		struct Layer Output;
 
-		initLay(&Input,2,2);
-		initLay(&Hidden,2,1);
+		initLay(&Input,2,1);
+		//initLay(&Hidden,2,1);
 		initLay(&Output,1,1);
 
 		Input.neuron[0].weight[0] = 0.8;
@@ -64,10 +65,12 @@ int main_neural()
 		Input.neuron[1].weight[0] = 0.4;
 		Input.neuron[1].weight[1] = 0.6;
 
-		Hidden.neuron[0].weight[0] = 0.7;
-		Hidden.neuron[1].weight[0] = 0.3;
-		printf("%Lf\n", Output.neuron->output);
-		printf("%Lf\n", sigmoid(4));
+		//Hidden.neuron[0].weight[0] = 0.7;
+		//Hidden.neuron[1].weight[0] = 0.3;
+	//	printf("%Lf\n", Output.neuron->output);
+	//	printf("%Lf\n", sigmoid(4));
+		ComputeSum(&Input, &Output);
+		printf("%Lf\n", Output.neuron[0].output);
 		return 0;
 }
 

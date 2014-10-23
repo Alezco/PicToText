@@ -3,6 +3,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <stdbool.h>
+#include "neuralnetwork.h"
  
 void pause();
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
@@ -291,7 +292,9 @@ Uint32 getpixel(SDL_Surface *surface, int x, int y)
 
 int main()
 {
-    SDL_Surface *ecran = NULL, *imageDeFond = NULL, *sapin = NULL;
+    main_neural();
+
+	SDL_Surface *ecran = NULL, *imageDeFond = NULL, *sapin = NULL;
     SDL_Rect positionFond, positionSapin;
      SDL_PixelFormat *fmt;
 
@@ -309,7 +312,8 @@ int main()
     imageDeFond = IMG_Load("src/perfect_image.jpg");
     
     Uint32 pixel;
-    fmt = imageDeFond->format;
+    fmt = 
+	imageDeFond->format;
     pixel = SDL_MapRGB(fmt, 255, 0, 0);
     /*putpixel(imageDeFond, 0, 0, pixel);
     remplir_x(imageDeFond, 10, pixel);
@@ -344,7 +348,7 @@ int main()
     SDL_FreeSurface(imageDeFond);
     SDL_FreeSurface(sapin);
     SDL_Quit();
- 
+
     return EXIT_SUCCESS;
 }
  

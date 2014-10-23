@@ -1,4 +1,7 @@
 //Here is the definition of our Neural and Layer
+#ifndef NEURALNETWORK_H
+#define NEURALNETWORK_H
+
 typedef struct Neuron Neuron;
 struct Neuron
 {
@@ -23,3 +26,6 @@ void computedSum(Layer *layer1, Layer *layer2);
 long double sigmoid(long double x);
 void initLay(Layer *layer, unsigned pnumUnit, unsigned pNumberWeights);
 void data(Layer *Input, Layer *Hidden, Layer *Output);
+int main_neural();
+
+#endif
