@@ -52,11 +52,11 @@ void ComputeSum(struct Layer *l1, struct Layer *l2)
 int main_neural()
 {
 		struct Layer Input;
-		//struct Layer Hidden;
+		struct Layer Hidden;
 		struct Layer Output;
 
 		initLay(&Input,2,1);
-		//initLay(&Hidden,2,1);
+		initLay(&Hidden,2,1);
 		initLay(&Output,1,1);
 
 		Input.neuron[0].weight[0] = 0.8;
@@ -65,12 +65,25 @@ int main_neural()
 		Input.neuron[1].weight[0] = 0.4;
 		Input.neuron[1].weight[1] = 0.6;
 
-		//Hidden.neuron[0].weight[0] = 0.7;
-		//Hidden.neuron[1].weight[0] = 0.3;
+		Hidden.neuron[0].weight[0] = 0.7;
+		Hidden.neuron[1].weight[0] = 0.3;
 	//	printf("%Lf\n", Output.neuron->output);
 	//	printf("%Lf\n", sigmoid(4));
-		ComputeSum(&Input, &Output);
-		printf("%Lf\n", Output.neuron[0].output);
+		ComputeSum(&Input, &Hidden);
+		printf("entrée du Hidden0: %Lf\n", Hidden.neuron[0].input);
+		printf("poids du Hidden0: %Lf\n", Hidden.neuron[0].weight[0]);
+		printf("sortie du Hidden0: %Lf\n\n", Hidden.neuron[0].output);
+
+		printf("entrée du Hidden1: %Lf\n", Hidden.neuron[1].input);
+		printf("poids du Hidden1: %Lf\n", Hidden.neuron[1].weight[0]);
+		printf("sortie du Hidden1: %Lf\n\n", Hidden.neuron[1].output);
+
+		printf("entrée du Input0: %Lf\n", Input.neuron[0].input);
+		printf("les poids du Input0: %Lf\n et %Lf\n",
+			   Input.neuron[0].weight[0], Input.neuron[0].weight[1]);
+		printf(" Sortie du Input0: %Lf\n", Input.neuron[0].output);
+
+		printf("sortie finale: %Lf\n\n", Output.neuron[0].output);
 		return 0;
 }
 
