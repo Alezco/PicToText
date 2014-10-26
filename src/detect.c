@@ -7,7 +7,6 @@
 
 void draw(SDL_Surface *surface, SDL_Rect rect, Uint32 color)
 {
-  /// draw on the surface empty rectangle ///
   for (int i = 0; i<rect.w; i++)
     {
        putpixel(surface,rect.x +  i,rect.y, color);
@@ -20,21 +19,17 @@ void draw(SDL_Surface *surface, SDL_Rect rect, Uint32 color)
     }
 }
 
-
-
-void analyse_y(SDL_Surface *surface, int collumn[surface->h])
+void analysis_y(SDL_Surface *surface, int collumn[surface->h])
 {
-  /// return list [0 or 1] of the surface 
-  /// 0 if no pixel is black on the collumn. Otherwise 1
   Uint8 r, g, b;
   Uint32 pixel;
   SDL_PixelFormat *fmt;
   fmt = surface->format;
   bool isempty;
-  for (int j = 0; j < surface->h; j++ )
+  for (int j = 0; j < surface->h; j++)
   {
     isempty = true;
-    for (int i = 0; i < surface->w; i++ )
+    for (int i = 0; i < surface->w; i++)
     {
       pixel = getpixel(surface,i,j);
       SDL_GetRGB(pixel,fmt,&r,&g,&b);
@@ -55,10 +50,8 @@ void analyse_y(SDL_Surface *surface, int collumn[surface->h])
   }
 }
 
-void analyse_x(SDL_Surface *surface, int row[surface->w])
+void analysis_x(SDL_Surface *surface, int row[surface->w])
 {
-  /// return list [0 or 1] of the surface 
-  /// 0 if no pixel is black on the line. Otherwise 1
   Uint8 r, g, b;
   Uint32 pixel;
   SDL_PixelFormat *fmt;
@@ -91,9 +84,7 @@ void analyse_x(SDL_Surface *surface, int row[surface->w])
 
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 {
-  /// put a pixel of a given color at the given place ///
-    int bpp = surface->format->BytesPerPixel;
-    //Here p is the address to the pixel we want to set 
+    int bpp = surface->format->BytesPerPixel; 
     Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
 
     switch(bpp) {
@@ -125,9 +116,7 @@ void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 
 Uint32 getpixel(SDL_Surface *surface, int x, int y)
 {
-   /// get a pixel color by coordinates  ///
-    int bpp = surface->format->BytesPerPixel;
-    //Here p is the address to the pixel we want to retrieve 
+    int bpp = surface->format->BytesPerPixel; 
     Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
 
     switch(bpp) {
@@ -151,14 +140,13 @@ Uint32 getpixel(SDL_Surface *surface, int x, int y)
         break;
 
     default:
-      return 0;       // shouldn't happen, but avoids warnings 
+      return 0;
     }
 }
 
 
-void analyse_x_2(SDL_Surface *surface, SDL_Rect rect, int tab[])
+void analysis_x_2(SDL_Surface *surface, SDL_Rect rect, int tab[])
 {
-  /// same as analyse x but inside a rectangle ///
   Uint8 r, g, b;
   Uint32 pixel;
   SDL_PixelFormat *fmt;
@@ -191,9 +179,8 @@ void analyse_x_2(SDL_Surface *surface, SDL_Rect rect, int tab[])
 	}
     }
 }
-void analyse_y_2(SDL_Surface *surface, SDL_Rect rect, int tab[])
+void analysis_y_2(SDL_Surface *surface, SDL_Rect rect, int tab[])
 {
-  /// same as analyse x but inside a rectangle ///
   Uint8 r, g, b;
   Uint32 pixel;
   SDL_PixelFormat *fmt;
@@ -226,9 +213,8 @@ void analyse_y_2(SDL_Surface *surface, SDL_Rect rect, int tab[])
 	}
     }
 }
-int fonction_line(int g_tab_y[], SDL_Rect t_rect[], SDL_Rect rectangle_p)
+int detect_line(int g_tab_y[], SDL_Rect t_rect[], SDL_Rect rectangle_p)
 {
-  /// return list of line in a given block ///
   SDL_Rect rectangle;
   int count = 0;
   bool full_y = false;
@@ -241,19 +227,18 @@ int fonction_line(int g_tab_y[], SDL_Rect t_rect[], SDL_Rect rectangle_p)
       }
     if (g_tab_y[i] == 1 && full_y) 
       {
-	   rectangle.h = i+rectangle_p.y - rectangle.y + 1;//
-	   rectangle.x = rectangle_p.x;
-	   rectangle.w = rectangle_p.w + 1;//
-	   t_rect[count] = rectangle;
-	   count++;
-	   full_y = false;
+	 rectangle.h = i+rectangle_p.y - rectangle.y + 1;//
+	 rectangle.x = rectangle_p.x;
+	 rectangle.w = rectangle_p.w + 1;//
+	 t_rect[count] = rectangle;
+	 count++;
+	 full_y = false;
       }
   }
   return count;
 }
-int fonction_char(int g_tab_x[], SDL_Rect t_rect[], SDL_Rect rectangle_p)
+int detect_char(int g_tab_x[], SDL_Rect t_rect[], SDL_Rect rectangle_p)
 {
-  /// return list of char in a given line ///
   SDL_Rect rectangle;
   int count = 0;
   bool full_x = false;
@@ -266,19 +251,19 @@ int fonction_char(int g_tab_x[], SDL_Rect t_rect[], SDL_Rect rectangle_p)
       }
     if (g_tab_x[i] == 1 && full_x) 
       {
-	   rectangle.w = i+rectangle_p.x - rectangle.x;
-	   rectangle.y = rectangle_p.y;
-	   rectangle.h = rectangle_p.h;
-	   t_rect[count] = rectangle;
-	   count++;
-	   full_x = false;
+	rectangle.w = i+rectangle_p.x - rectangle.x;
+	rectangle.y = rectangle_p.y;
+	rectangle.h = rectangle_p.h;
+	t_rect[count] = rectangle;
+	count++;
+	full_x = false;
       }
   }
   return count;
 }
 
 
-int fonction_bloc(SDL_Surface *surface, int tab_x[], SDL_Rect t_rect[surface->w])
+int detect_block(SDL_Surface *surface,int tab_x[],SDL_Rect t_rect[surface->w])
 {
   bool start = false;
   int count = 0;
@@ -306,46 +291,45 @@ int fonction_bloc(SDL_Surface *surface, int tab_x[], SDL_Rect t_rect[surface->w]
 
 
 
-void traitement(SDL_Surface *surface, int lvl1, int lvl2, int lvl3)
+void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3)
 {
     SDL_PixelFormat *fmt;
-    // Set pixel color for graphics highlights
     Uint32 pixel_red, pixel_green, pixel_blue;
     fmt = surface->format;
     pixel_red = SDL_MapRGB(fmt, 255, 0, 0);
     pixel_green = SDL_MapRGB(fmt, 0, 255, 0);
     pixel_blue = SDL_MapRGB(fmt, 0, 0, 255);
-
     
     int x[surface->w];
-    analyse_x(surface, x);
+    analysis_x(surface, x);
     int y[surface->h];
-    analyse_y(surface, y);
+    analysis_y(surface, y);
 
     SDL_Rect rect_b[(surface->w*surface->h)/4];
     int rect_size_t_b = 0;
-    rect_size_t_b = fonction_bloc(surface,x, rect_b);
+    rect_size_t_b = detect_block(surface,x, rect_b);
 
     for (int i = 0; i<rect_size_t_b; i++)
     {
          int y2[surface->h];
-	 analyse_y_2(surface, rect_b[i], y2);
+	 analysis_y_2(surface, rect_b[i], y2);
 	 SDL_Rect rect[(rect_b[i].h*rect_b[i].w)/5];
 	 int rect_size_t;
-	 rect_size_t = fonction_line(y2,rect,rect_b[i]);
+	 rect_size_t = detect_line(y2,rect,rect_b[i]);
+
 	 for (int j = 0; j < rect_size_t; j++)
 	 {
 	   SDL_Rect rect_c[(rect[j].w*rect[j].h)/5];
 	   int tab[rect[j].w];
-	   analyse_x_2(surface, rect[j], tab);
-	   int rect2_size_t = fonction_char(tab, rect_c, rect[j]);
+	   analysis_x_2(surface, rect[j], tab);
+	   int rect2_size_t = detect_char(tab, rect_c, rect[j]);
 	   for (int z = 0; z < rect2_size_t; z++)
 	   {
 	     int y2_2[rect_c[z].h];
-	     analyse_y_2(surface, rect_c[z], y2_2);
+	     analysis_y_2(surface, rect_c[z], y2_2);
 	     SDL_Rect rect_r[(rect_c[z].h*rect_c[z].w)/5];
 	     int rect_size_r;
-	     rect_size_r = fonction_line(y2_2,rect_r,rect_c[z]);
+	     rect_size_r = detect_line(y2_2,rect_r,rect_c[z]);
 	     for (int k = 0; k < rect_size_r; k++)
 	       {
 		 if (lvl1 == 1)
