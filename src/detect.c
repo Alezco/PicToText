@@ -350,7 +350,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3)
     }
 }
 
-void pause()
+void pause_p()
 {
     int ok = 1;
     SDL_Event event;

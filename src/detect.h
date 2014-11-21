@@ -1,7 +1,7 @@
 #ifndef DETECT_H
 #define DETECT_H
 
-void pause();
+void pause_p();
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 Uint32 getpixel(SDL_Surface *surface, int x, int y);
 void draw(SDL_Surface *surface, SDL_Rect rect, Uint32 color);

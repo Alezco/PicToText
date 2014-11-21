@@ -5,9 +5,11 @@
 #include <stdbool.h>
 #include "detect.h"
 #include "neuralnetwork.h"
+#include "gtk.h"
 
 int main(int argc, char *argv[])
 {
+	main_gtk(argc, argv);
     printf("STARTING ...\n");
     main_neural();
     SDL_Surface *ecran = NULL, *image = NULL;
