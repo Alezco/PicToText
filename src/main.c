@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 	main_gtk(argc, argv);
     printf("STARTING ...\n");
     main_neural();
-    SDL_Surface *ecran = NULL, *image = NULL;
+    /*SDL_Surface *ecran = NULL, *image = NULL;
     SDL_Rect position;
 
     position.x = 0;
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     ecran = SDL_SetVideoMode(image->w, image->h, 32, SDL_HWSURFACE);
     SDL_WM_SetCaption("PicToText", NULL);
  
-    processing(image, lvl1, lvl2, lvl3);
+    //processing(image, lvl1, lvl2, lvl3);
    
     SDL_BlitSurface(image, NULL, ecran, &position);
  
@@ -63,5 +63,6 @@ int main(int argc, char *argv[])
     SDL_FreeSurface(image);
     SDL_Quit();
     printf("EXIT WITH SUCESS !\n");
+	*/
     return EXIT_SUCCESS;
 }

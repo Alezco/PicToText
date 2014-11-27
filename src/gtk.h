@@ -4,11 +4,9 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 
-int main_gtk(int argc, char **argv);
-void OnExit(gpointer data);
-void OnAbout();
-void OnOpen();
-void create_file();
-void path(GtkWidget *file_selection);
+int main_gtk(int argc, char *argv[]);
+int open_dialog(gpointer window, gpointer pVbox);
+void Quit(gpointer data);
+
 
 #endif

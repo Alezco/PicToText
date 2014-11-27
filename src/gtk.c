@@ -1,172 +1,123 @@
 #include "gtk.h"
+#include "neuralnetwork.h"
 
-/* Définition des éléments du menu */
-static GtkItemFactoryEntry MenuItem[] =
+int open_dialog(gpointer window, gpointer pVbox)
 {
-
-	{ "/_File", NULL, NULL, 0, "<Branch>", NULL },
-	{ "/File/_Open",NULL,OnOpen, 0, "<StockItem>", GTK_STOCK_OPEN },
-	{ "/File/_Save", NULL, NULL, 0, "<StockItem>", GTK_STOCK_SAVE },
-	{"/File/_Close", "<ctrl>X",NULL,0, "<StockItem>", GTK_STOCK_CLOSE },
-	{ "/File/Sep1", NULL, NULL, 0, "<Separator>", NULL },
-	{ "/File/_Quit", NULL, OnExit, 1, "<StockItem>", GTK_STOCK_QUIT},
-	{ "/_Edit", NULL,NULL, 0, "<Branch>",NULL},
-	{ "/_?", NULL, NULL, 0, "<Branch>", NULL },
-	{ "/?/_About...", "<CTRL>A", OnAbout, 1, "<StockItem>", GTK_STOCK_HELP}
-};
-
-/* Nombre d' éléments du menu */
-static gint iNbMenuItem = sizeof(MenuItem) / sizeof(MenuItem[0]);
-
-int main_gtk(int argc, char **argv)
-{
-	GtkWidget *pWindow;
-	GtkWidget *pVBox;
-	GtkWidget *pMenuBar;
-	GtkItemFactory *pItemFactory;
-	GtkAccelGroup *pAccel;
-
-	gtk_init(&argc, &argv);
-
-	/* Création de la fenêtre */
-	pWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(pWindow), "PicToText OCR");
-	gtk_window_set_default_size(GTK_WINDOW(pWindow), 1550, 900);
-	g_signal_connect(G_OBJECT(pWindow), "destroy", G_CALLBACK(gtk_main_quit), NULL);
-
-	pVBox = gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(pWindow), pVBox);
-
-	/* Création de la table d'accélération */
-	pAccel = gtk_accel_group_new();
-
-	/* Création du menu */
-	pItemFactory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", pAccel);
-	/* Récupération des éléments du menu */
-	gtk_item_factory_create_items(pItemFactory, iNbMenuItem, MenuItem, (GtkWidget*)pWindow);
-	/* Récupération du widget pour l'affichage du menu */
-	pMenuBar = gtk_item_factory_get_widget(pItemFactory, "<main>");
-	/* Ajout du menu en haut de la fenêtre */
-	gtk_box_pack_start(GTK_BOX(pVBox), pMenuBar, FALSE, FALSE, 0);
-	/* Association des raccourcis avec la fenêtre */
-	gtk_window_add_accel_group(GTK_WINDOW(pWindow), pAccel);
-
-	/* Création d un second menu de type GTK_TYPE_OPTION_MENU */
-	pItemFactory = gtk_item_factory_new(GTK_TYPE_OPTION_MENU, "<main>", NULL);
-	/* Récupération des éléments du menu */
-	gtk_item_factory_create_items(pItemFactory, iNbMenuItem, MenuItem, (GtkWidget*)pWindow);
-	/* Récupération du widget pour l'affichage du menu */
-	pMenuBar = gtk_item_factory_get_widget(pItemFactory, "<main>");
-
-	gtk_widget_show_all(pWindow);
-	gtk_main();
-
-	return EXIT_SUCCESS;
-}
-void create_file()
-{
-	GtkWidget *selection;
-
-	selection = gtk_file_selection_new( g_locale_to_utf8( "Please, choose a path to load your image", -1, NULL, NULL, NULL) );
-	gtk_widget_show(selection);
-
-	//On interdit l'utilisation des autres fenêtres.
-	gtk_window_set_modal(GTK_WINDOW(selection), TRUE);
-
-	g_signal_connect(G_OBJECT(GTK_FILE_SELECTION(selection)->ok_button), "clicked", G_CALLBACK(path), selection );
-
-	g_signal_connect_swapped(G_OBJECT(GTK_FILE_SELECTION(selection)->cancel_button), "clicked", G_CALLBACK(gtk_widget_destroy), selection);
-}
-
-void path(GtkWidget *file_selection)
-{
-	const gchar* chemin;
 	GtkWidget *dialog;
-	chemin = gtk_file_selection_get_filename(GTK_FILE_SELECTION (file_selection) );
+	dialog = gtk_file_chooser_dialog_new("Chemin d'accès",
+					GTK_WINDOW(window),
+					GTK_FILE_CHOOSER_ACTION_OPEN,
+					GTK_STOCK_OK,
+					GTK_RESPONSE_OK,
+					GTK_STOCK_CANCEL,
+					GTK_RESPONSE_CANCEL,
+					NULL);
 
-	dialog = gtk_message_dialog_new(GTK_WINDOW(file_selection),
-					GTK_DIALOG_MODAL,
-					GTK_MESSAGE_INFO,
-					GTK_BUTTONS_OK,
-					"You chose :\n%s", chemin);
+	gtk_widget_show_all(dialog);
+	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),
+				g_get_home_dir());
+	gint resp = gtk_dialog_run(GTK_DIALOG(dialog));
+	if (resp == GTK_RESPONSE_OK)
+	{
+		GtkWidget *label, *image, *pHbox;
+		const gchar* path;
+		pHbox = gtk_hbox_new(FALSE,8);
+		path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+		g_print("%s ouvert\n", path);
 
-	gtk_dialog_run(GTK_DIALOG(dialog));
-	gtk_widget_destroy(dialog);
-	gtk_widget_destroy(file_selection);
-
-	GtkWidget *pWindow;
-	GtkWidget *pVBox;
-	GtkWidget *pImage;
-	GtkWidget *pQuitImage;
-	GtkWidget *pQuitBtn;
-
-
-	pWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(pWindow), 320, 200);
-	gtk_window_set_title(GTK_WINDOW(pWindow), "GtkImage");
-	g_signal_connect(G_OBJECT(pWindow), "destroy", G_CALLBACK(gtk_main_quit), NULL);
-
-	pVBox = gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(pWindow), pVBox);
-
-	/* Chargement d'une image a partir d'un fichier */
-	pImage = gtk_image_new_from_file(chemin);
-	gtk_box_pack_start(GTK_BOX(pVBox), pImage, FALSE, FALSE, 5);
-
-	pQuitBtn = gtk_button_new();
-	gtk_box_pack_start(GTK_BOX(pVBox), pQuitBtn, TRUE, FALSE, 5);
-	g_signal_connect(G_OBJECT(pQuitBtn), "clicked", G_CALLBACK(gtk_main_quit), NULL);
-
-	/* Chargement d'une image a partir d'un GtkStockItem */
-	pQuitImage = gtk_image_new_from_stock(GTK_STOCK_QUIT, GTK_ICON_SIZE_LARGE_TOOLBAR);
-	gtk_container_add(GTK_CONTAINER(pQuitBtn), pQuitImage);
-
-	gtk_widget_show_all(pWindow);
-
+		label = gtk_label_new("PicToTest zone de texte editable");
+		image = gtk_image_new_from_file(path);
+		gtk_box_pack_start(GTK_BOX(pHbox),label,FALSE,TRUE,0);
+		gtk_box_pack_start(GTK_BOX(pHbox),image,FALSE,TRUE,0);
+		gtk_container_add(GTK_CONTAINER(pVbox),pHbox);
+		gtk_widget_show_all(pVbox);
+		gtk_widget_destroy(dialog);
+		return 1;
+	}
+	else
+		{
+			g_print("Canceled\n");
+			gtk_widget_destroy(dialog);
+		}
+	return 0;
 }
-void OnExit(gpointer data)
+
+void Quit(gpointer data)
 {
 	GtkWidget *pQuestion;
 
 	pQuestion = gtk_message_dialog_new(GTK_WINDOW(data),
-					GTK_DIALOG_MODAL,
-					GTK_MESSAGE_QUESTION,
-					GTK_BUTTONS_YES_NO,
-					"Are you sure you want\n"
-					"to exit PicToText?");
-
+				GTK_DIALOG_MODAL,
+				GTK_MESSAGE_QUESTION,
+				GTK_BUTTONS_YES_NO,
+				"Voulez vous quitter PicToText?");
 	switch(gtk_dialog_run(GTK_DIALOG(pQuestion)))
-	{
+		{
 			case GTK_RESPONSE_YES:
-					gtk_main_quit();
-					break;
+				gtk_main_quit();
+				break;
 			case GTK_RESPONSE_NONE:
 			case GTK_RESPONSE_NO:
-					gtk_widget_destroy(pQuestion);
-					break;
-	}
+				gtk_widget_destroy(pQuestion);
+				break;
+		}
 }
 
-void OnOpen()
+int main_gtk(int argc, char *argv[])
 {
-	create_file();
-}
+	/* GtkWidget is the storage type for widgets */
+	GtkWidget *window;
+	GtkWidget *pVBox;
+	GtkWidget *button;
+	GtkWidget *button2;
+	GtkWidget *button3;
 
-void OnAbout()
-{
-	GtkWidget *wind;
-	wind = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(wind),320,200);
-	gtk_window_set_title(GTK_WINDOW(wind), "Who are we?");
+	/* Initialise GTK */
+	gtk_init(&argc, &argv);
 
-	GtkWidget *label = NULL;
-	gchar* aboutUs;
-	aboutUs = g_locale_to_utf8("The Running Coders vous presente son OCR\n"
-			,-1, NULL, NULL, NULL);
-	label = gtk_label_new(aboutUs);
-	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
-	gtk_container_add(GTK_CONTAINER(wind), label);
-	gtk_widget_show_all(wind);
-	g_signal_connect(G_OBJECT(wind),"destroy",
-				G_CALLBACK(gtk_main_quit),NULL);
+	/* Create a new window */
+	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_default_size(GTK_WINDOW(window),1550,900);
+	gtk_window_set_title(GTK_WINDOW(window), "PicToText");
+
+	gtk_container_set_border_width(GTK_CONTAINER(window),10);
+
+	/* Here we connect the "destroy" event to a signal handler */ 
+	gtk_signal_connect (GTK_OBJECT (window), "destroy",
+					GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+
+	/* Sets the border width of the window. */
+	gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+
+	/* Create a pVertical Box */
+	pVBox = gtk_vbox_new(FALSE,8);
+	gtk_container_add(GTK_CONTAINER(window), pVBox);
+
+	button = gtk_button_new_with_label ("Ouvrir");
+	gtk_box_pack_start(GTK_BOX(pVBox),button, FALSE,FALSE,FALSE);
+	gtk_widget_set_size_request(button,100,35);
+	/*gtk_fixed_put(GTK_FIXED(fixed),button,600,0);
+	gtk_widget_show(button); */
+
+	button2 = gtk_button_new_with_label ("Convertir");
+	gtk_widget_set_size_request(button2,100,35);
+	gtk_box_pack_start(GTK_BOX(pVBox),button2,FALSE,FALSE,FALSE);
+	/*gtk_fixed_put(GTK_FIXED(fixed),button2, 800,0);
+	gtk_widget_show(button2); */
+
+	button3 = gtk_button_new_with_label("Quitter");
+	gtk_widget_set_size_request(button3,100,35);
+	gtk_box_pack_start(GTK_BOX(pVBox),button3,FALSE,FALSE,FALSE);
+	
+	gtk_signal_connect(GTK_OBJECT(button),"clicked",
+					GTK_SIGNAL_FUNC(open_dialog),
+					GTK_OBJECT(pVBox));
+	gtk_signal_connect_object(GTK_OBJECT(button3),"clicked",
+					GTK_SIGNAL_FUNC(Quit),
+					GTK_OBJECT(window));
+	/* Display the window */
+	gtk_widget_show_all (window);
+	/* Enter the event loop */
+	gtk_main ();
+	return(0);
 }
