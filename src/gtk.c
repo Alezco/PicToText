@@ -3,7 +3,9 @@
 
 int open_dialog(gpointer window, gpointer pVbox)
 {
-	GtkWidget *dialog;
+	GtkWidget *dialog, *label, *image, *pHbox;
+	image = NULL;
+	pHbox = NULL;
 	dialog = gtk_file_chooser_dialog_new("Chemin d'accès",
 					GTK_WINDOW(window),
 					GTK_FILE_CHOOSER_ACTION_OPEN,
@@ -17,20 +19,21 @@ int open_dialog(gpointer window, gpointer pVbox)
 	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),
 				g_get_home_dir());
 	gint resp = gtk_dialog_run(GTK_DIALOG(dialog));
+
 	if (resp == GTK_RESPONSE_OK)
 	{
-		GtkWidget *label, *image, *pHbox;
-		const gchar* path;
+		gtk_widget_destroy(pHbox);
+		gchar* path;
 		pHbox = gtk_hbox_new(FALSE,8);
 		path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 		g_print("%s ouvert\n", path);
-
 		label = gtk_label_new("PicToTest zone de texte editable");
 		image = gtk_image_new_from_file(path);
 		gtk_box_pack_start(GTK_BOX(pHbox),label,FALSE,TRUE,0);
 		gtk_box_pack_start(GTK_BOX(pHbox),image,FALSE,TRUE,0);
 		gtk_container_add(GTK_CONTAINER(pVbox),pHbox);
 		gtk_widget_show_all(pVbox);
+		g_free(path);
 		gtk_widget_destroy(dialog);
 		return 1;
 	}
@@ -39,6 +42,7 @@ int open_dialog(gpointer window, gpointer pVbox)
 			g_print("Canceled\n");
 			gtk_widget_destroy(dialog);
 		}
+
 	return 0;
 }
 
@@ -92,22 +96,19 @@ int main_gtk(int argc, char *argv[])
 	/* Create a pVertical Box */
 	pVBox = gtk_vbox_new(FALSE,8);
 	gtk_container_add(GTK_CONTAINER(window), pVBox);
+	gtk_widget_set_size_request(pVBox, 100,35);
 
 	button = gtk_button_new_with_label ("Ouvrir");
-	gtk_box_pack_start(GTK_BOX(pVBox),button, FALSE,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(pVBox),button, FALSE,FALSE,0);
 	gtk_widget_set_size_request(button,100,35);
-	/*gtk_fixed_put(GTK_FIXED(fixed),button,600,0);
-	gtk_widget_show(button); */
 
 	button2 = gtk_button_new_with_label ("Convertir");
 	gtk_widget_set_size_request(button2,100,35);
-	gtk_box_pack_start(GTK_BOX(pVBox),button2,FALSE,FALSE,FALSE);
-	/*gtk_fixed_put(GTK_FIXED(fixed),button2, 800,0);
-	gtk_widget_show(button2); */
+	gtk_box_pack_start(GTK_BOX(pVBox),button2,FALSE,FALSE,0);
 
 	button3 = gtk_button_new_with_label("Quitter");
 	gtk_widget_set_size_request(button3,100,35);
-	gtk_box_pack_start(GTK_BOX(pVBox),button3,FALSE,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(pVBox),button3,FALSE,FALSE,0);
 	
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
 					GTK_SIGNAL_FUNC(open_dialog),
