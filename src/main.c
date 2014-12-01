@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 {
   //main_gtk(argc, argv);
     printf("STARTING ...\n");
-    //main_neural();
+    main_neural();
     /*SDL_Surface *ecran = NULL, *image = NULL;
     SDL_Rect position;
 

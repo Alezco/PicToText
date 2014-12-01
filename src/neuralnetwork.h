@@ -2,14 +2,12 @@
 #define NEURALNETWORK_H
 
 long double sigmoid(long double x);
-void calcNet(void);
-void WeightChangesHO(); 
-void WeightChangesIH(); 
+long double sigmoid_derivate(long double x);
+void Initialize(int *layerSizes); 
 long double RandomVal(void); 
-void initWeights(void);
-void initData(void);
-void displayResults(); 
-void calcOverallError();
+void Run(double *input, double *output);
+double Train(double *input, double *desired,
+						 double TrainingRate, double Momentum);
 int main_neural(void);
 
 #endif

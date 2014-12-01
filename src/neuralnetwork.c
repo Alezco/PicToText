@@ -4,182 +4,205 @@
 #include <time.h>
 #include "neuralnetwork.h"
 
-#define numInputs  3
-#define numPatterns  4
-#define numHidden 2
+int layerCount; //nb couches 
+int inputSize;  //nb n dans input
+int *layerSize; //nb n par couche
 
-const int iterations = 1000;
-const double LR_IH = 0.7;
-const double LR_HO = 0.07;
+double **layerOutput;
+double **layerInput;
+double **bias;
+double **delta;
+double **previousBiasDelta;
 
-int patNum = 0;
-double errThisPat = 0.0;
-double outPred = 0.0;
-double RMSerror = 0.0;
-
-double hiddenVal[numHidden];
-
-double weightsIH[numInputs][numHidden];
-double weightsHO[numHidden];
-
-int trainInputs[numPatterns][numInputs];
-int trainOutput[numPatterns];
+double ***weights;
+double ***previousWeightDelta; 
 
 long double sigmoid(long double x)
 {
-	return (1 /(1 + exp(-x)));
+		return (1 /(1 + exp(-x)));
 }
 
-void calcNet(void)
+long double sigmoid_derivate(long double x)
 {
-    int i = 0;
-    int j = 0;
-
-    for(i = 0;i < numHidden;i++)
-    {
-	hiddenVal[i] = 0.0;
-
-        for(j = 0;j<numInputs;j++)
-        {
-	  hiddenVal[i]=hiddenVal[i]+(trainInputs[patNum][j] * weightsIH[j][i]);
-        }
-
-        hiddenVal[i] = sigmoid(hiddenVal[i]);
-    }
-
-    outPred = 0.0;
-
-   for(i = 0;i<numHidden;i++)
-   {
-    outPred = outPred + hiddenVal[i] * weightsHO[i];
-   }
-    
-    errThisPat = outPred - trainOutput[patNum];
-
+		return sigmoid(x) * (1 - sigmoid(x));
 }
 
-void WeightChangesHO(void)
+void Initialize(int *layerSizes)
 {
-   for(int k = 0;k<numHidden;k++)
-   {
-	double weightChange = LR_HO * errThisPat * hiddenVal[k];
-    	weightsHO[k] -= weightChange;
+		layerCount = sizeof(*layerSizes) / sizeof(int) - 1;
+		inputSize = layerSizes[0];
+		layerSize = malloc(sizeof(int) * layerCount);
 
-    	if (weightsHO[k] < -5)
-    	{
-     		weightsHO[k] = -5;
-    	}
-    	else if (weightsHO[k] > 5)
-    	{
-     	weightsHO[k] = 5;
-    	}
-   }
+		for(int i = 0; i < layerCount; i++)
+				layerSize[i] = layerSizes[i + 1];
 
- }
+		layerOutput = malloc(sizeof(double) * layerCount);
+		layerInput = malloc(sizeof(double) * layerCount);
+		bias = malloc(sizeof(double) * layerCount);
+		delta = malloc(sizeof(double) * layerCount);
+		previousBiasDelta = malloc(sizeof(double) * layerCount);
 
-void WeightChangesIH(void)
-{
-  for(int i = 0;i<numHidden;i++)
-  {
-   	for(int k = 0;k<numInputs;k++)
-   	{
-    		double x = 1 - (hiddenVal[i] * hiddenVal[i]);
-    		x = x * weightsHO[i] * errThisPat * LR_IH;
-    		x = x * trainInputs[patNum][k];
-    		double weightChange = x;
-    		weightsIH[k][i] = weightsIH[k][i] - weightChange;
-   	}
-  }
+		weights = malloc(sizeof(double) * layerCount);
+		previousWeightDelta = malloc(sizeof(double) * layerCount);
 
+		for(int l = 0; l < layerCount; l++)
+		{
+				layerOutput[l] = malloc(sizeof(double) * layerSize[l]);
+				layerInput[l] = malloc(sizeof(double) * layerSize[l]);
+				bias[l] = malloc(sizeof(double) * layerSize[l]);
+				delta[l] = malloc(sizeof(double) * layerSize[l]);
+				previousBiasDelta = malloc(sizeof(double) * layerSize[l]);
+
+				weights[l] = malloc(sizeof(double) *
+								(l == 0 ? inputSize : layerSize[l - 1]));
+				previousWeightDelta[l] = malloc(sizeof(double) *
+								(l == 0 ? inputSize : layerSize[l - 1]));
+
+				for(int i = 0; i < (l == 0 ? inputSize : layerSize[l - 1]); i++)
+				{
+						weights[l][i] = malloc(sizeof(double) * layerSize[l]);
+						previousWeightDelta[l][i] = malloc(sizeof(double) * layerSize[l]);
+				}
+		}
+
+		for(int l = 0; l < layerCount; l++)
+		{
+				for(int j = 0; j < layerSize[l]; j++)
+				{
+						bias[l][j] = RandomVal();
+						layerOutput[l][j] = 0.0;
+						layerInput[l][j] = 0.0;
+						delta[l][j] = 0.0;
+						previousBiasDelta[l][j] = 0.0;
+				}
+
+
+				for(int i = 0; i < (l == 0 ? inputSize : layerSize[l - 1]); i++)
+				{
+						for(int j = 0; j < layerSize[l]; j++)
+						{
+								weights[l][i][j] = RandomVal();
+								previousWeightDelta[l][i][j] = 0.0;
+						}
+				}
+		}
 }
 
 long double RandomVal(void)
 {
- 	return ((double)rand())/(double)RAND_MAX;
+		return ((double)rand() / (double)RAND_MAX);
 }
 
-void initWeights(void)
+void Run(double *input, double *output)
 {
- 	for(int j = 0;j<numHidden;j++)
- 	{
-   		weightsHO[j] = (RandomVal() - 0.5)/2;
-    		for(int i = 0;i<numInputs;i++)
-    		{
-     			weightsIH[i][j] = (RandomVal() - 0.5)/5;
-     			printf("Weight = %f\n", weightsIH[i][j]);
-    		}
-  	}
+		//output = malloc(sizeof(double) * layerSize[layerCount - 1]);
 
+		for(int l = 0; l < layerCount; l++)
+		{
+				for(int j = 0; j < layerSize[l]; j++)
+				{
+						double sum = 0.0;
+
+						for(int i = 0; i < (l == 0 ? inputSize : layerSize[l - 1]); i++)
+						{
+								sum += weights[l][i][j] * 
+											 (l == 0 ? input[i] : layerOutput[l - 1][i]);
+						}
+
+						sum += bias[l][j];
+						layerInput[l][j] = sum;
+						layerOutput[l][j] = sigmoid(sum);
+				}
+		}
+
+		for(int i = 0; i < layerSize[layerCount - 1]; i++)
+				output[i] = layerOutput[layerCount - 1][i];
 }
-
-void initData(void)
+double Train(double *input, double *desired, 
+						 double TrainingRate, double Momentum)
 {
-    trainInputs[0][0]  = 0;
-    trainInputs[0][1]  = 0;
-    trainInputs[0][2]  = 1;
-    trainOutput[0] = 0;
+		double error = 0.0;
+		double sum = 0.0;
+		double weightDelta = 0.0;
+		double biasDelta = 0.0;
 
-    trainInputs[1][0]  = 0;
-    trainInputs[1][1]  = 1;
-    trainInputs[1][2]  = 1;
-    trainOutput[1] = 1;
+		double *output = malloc(sizeof(double) * layerSize[layerCount - 1]);
 
-    trainInputs[2][0]  = 1;
-    trainInputs[2][1]  = 0;
-    trainInputs[2][2]  = 1;
-    trainOutput[2] = 1;
+		Run(input, output);
 
-    trainInputs[3][0]  = 1;
-    trainInputs[3][1]  = 1;
-    trainInputs[3][2]  = 1;
-    trainOutput[3] = 0;
+		for(int l = layerCount - 1; l >= 0; l--)
+		{
+				if(l == layerCount - 1)
+				{
+						for(int k = 0; k < layerSize[l]; k++)
+						{
+								delta[l][k] = desired[k] - output[k]; //inverse
+								error += delta[l][k] * delta[l][k] * /*0.5*/;
+								//delta[l][k] = sigmoid_derivate(layerInput[l][k]);
+						}
+				}
+				else
+				{
+						for(int i = 0; i < layerSize[l]; i++)
+						{
+								sum = 0.0;
+								for(int j = 0; i < layerSize[l + 1]; j++)
+								{
+										sum += weights[l + 1][i][j] * delta[l + 1][j];
+								}
+								//sum *= sigmoid_derivate(layerInput[l][i]); //test PN
 
-}
+								delta[l][i] = sum;
+						}
+				}
+		}
 
-void displayResults(void)
-{
- 	for(int i = 0;i<numPatterns;i++)
- 	{
-  		patNum = i;
-  		calcNet();
-  		printf("pat = %d expected value = %d calculated value = %f\n",
-  		patNum+1, trainOutput[patNum], outPred);
- 	}
-}
+		for(int l = 0; l < layerCount; l++)
+		{
+				for(int i = 0; i < (l == 0 ? inputSize : layerSize[l - 1]); i++)
+				{
+						for(int j = 0; layerSize[l]; j++)
+						{
+								weightDelta = TrainingRate * delta[l][j] *
+															(l == 0 ? input[i] : layerOutput[l - 1][i]);
+								weights[l][i][j] -= weightDelta + 
+																		Momentum * previousWeightDelta[l][i][j];
+								previousWeightDelta[l][i][j] = weightDelta;
+						}
+				}
+		}
 
-void calcOverallError(void)
-{
-     RMSerror = 0.0;
-     for(int i = 0;i<numPatterns;i++)
-        {
-         patNum = i;
-         calcNet();
-         RMSerror = RMSerror + (errThisPat * errThisPat);
-        }
-     RMSerror = RMSerror/numPatterns;
-     RMSerror = sqrt(RMSerror);
+		for(int l = 0; l < layerCount; l++)
+		{
+				for(int i = 0; i < layerSize[l]; i++)
+				{
+						biasDelta = TrainingRate * delta[l][i];
+						bias[l][i] -= biasDelta + Momentum * previousBiasDelta[l][i];
+						previousBiasDelta[l][i] = biasDelta;
+				}
+		}
+
+		return error;
 }
 
 int main_neural(void)
-{
- 	srand ( time(NULL) );
- 	initWeights();
-	initData();
+{		
+		int layerSizes[3] = {1, 2, 1};
+		Initialize(layerSizes);
+		double input[1] = {0.0};
+		double desired[1] = {0.1};
+		double output[1];
+		double error = 0;
 
-    	for(int j = 0;j <= iterations;j++)
-    	{
-        	for(int i = 0;i<numPatterns;i++)
-        	{
-          		patNum = rand()%numPatterns;
-			calcNet();
-			WeightChangesHO();
-			WeightChangesIH();
-        	}
+		for(int i = 0; i < 1000; i++)
+		{
+				error = Train(input, desired, 0.15, 0.1);
+				Run(input, output);
+				
+				if(i % 100 == 0)
+						printf("Iteration : %d\n Input : %f\n Output : %f\n Error : %f\n", 
+						       i, input[0], output[0], error);
+		}
 
-        calcOverallError();
-	printf("iteration = %d calculated value = %f\n",j,RMSerror);
-    	}
-
-	displayResults();
-	return 0;
+		return 0;
 }
