@@ -3,7 +3,7 @@
 
 long double sigmoid(long double x);
 long double sigmoid_derivate(long double x);
-void Initialize(int *layerSizes); 
+void Initialize(int *layerSizes, int layerSizesLength); 
 long double RandomVal(void); 
 void Run(double *input, double *output);
 double Train(double *input, double *desired,

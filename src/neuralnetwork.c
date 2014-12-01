@@ -27,23 +27,23 @@ long double sigmoid_derivate(long double x)
 		return sigmoid(x) * (1 - sigmoid(x));
 }
 
-void Initialize(int *layerSizes)
+void Initialize(int *layerSizes, int layerSizesLength)
 {
-		layerCount = sizeof(*layerSizes) / sizeof(int) - 1;
+		layerCount = layerSizesLength - 1;
 		inputSize = layerSizes[0];
 		layerSize = malloc(sizeof(int) * layerCount);
 
 		for(int i = 0; i < layerCount; i++)
 				layerSize[i] = layerSizes[i + 1];
 
-		layerOutput = malloc(sizeof(double) * layerCount);
-		layerInput = malloc(sizeof(double) * layerCount);
-		bias = malloc(sizeof(double) * layerCount);
-		delta = malloc(sizeof(double) * layerCount);
-		previousBiasDelta = malloc(sizeof(double) * layerCount);
+		layerOutput = malloc(sizeof(double *) * layerCount);
+		layerInput = malloc(sizeof(double *) * layerCount);
+		bias = malloc(sizeof(double *) * layerCount);
+		delta = malloc(sizeof(double *) * layerCount);
+		previousBiasDelta = malloc(sizeof(double *) * layerCount);
 
-		weights = malloc(sizeof(double) * layerCount);
-		previousWeightDelta = malloc(sizeof(double) * layerCount);
+		weights = malloc(sizeof(double **) * layerCount);
+		previousWeightDelta = malloc(sizeof(double **) * layerCount);
 
 		for(int l = 0; l < layerCount; l++)
 		{
@@ -51,11 +51,11 @@ void Initialize(int *layerSizes)
 				layerInput[l] = malloc(sizeof(double) * layerSize[l]);
 				bias[l] = malloc(sizeof(double) * layerSize[l]);
 				delta[l] = malloc(sizeof(double) * layerSize[l]);
-				previousBiasDelta = malloc(sizeof(double) * layerSize[l]);
+				previousBiasDelta[l] = malloc(sizeof(double) * layerSize[l]);
 
-				weights[l] = malloc(sizeof(double) *
+				weights[l] = malloc(sizeof(double *) *
 								(l == 0 ? inputSize : layerSize[l - 1]));
-				previousWeightDelta[l] = malloc(sizeof(double) *
+				previousWeightDelta[l] = malloc(sizeof(double *) *
 								(l == 0 ? inputSize : layerSize[l - 1]));
 
 				for(int i = 0; i < (l == 0 ? inputSize : layerSize[l - 1]); i++)
@@ -95,8 +95,6 @@ long double RandomVal(void)
 
 void Run(double *input, double *output)
 {
-		//output = malloc(sizeof(double) * layerSize[layerCount - 1]);
-
 		for(int l = 0; l < layerCount; l++)
 		{
 				for(int j = 0; j < layerSize[l]; j++)
@@ -136,9 +134,8 @@ double Train(double *input, double *desired,
 				{
 						for(int k = 0; k < layerSize[l]; k++)
 						{
-								delta[l][k] = desired[k] - output[k]; //inverse
-								error += delta[l][k] * delta[l][k] * /*0.5*/;
-								//delta[l][k] = sigmoid_derivate(layerInput[l][k]);
+								delta[l][k] = desired[k] - output[k];
+								error += delta[l][k] * delta[l][k] * 0.5;
 						}
 				}
 				else
@@ -146,12 +143,10 @@ double Train(double *input, double *desired,
 						for(int i = 0; i < layerSize[l]; i++)
 						{
 								sum = 0.0;
-								for(int j = 0; i < layerSize[l + 1]; j++)
+								for(int j = 0; j < layerSize[l + 1]; j++)
 								{
 										sum += weights[l + 1][i][j] * delta[l + 1][j];
 								}
-								//sum *= sigmoid_derivate(layerInput[l][i]); //test PN
-
 								delta[l][i] = sum;
 						}
 				}
@@ -161,12 +156,13 @@ double Train(double *input, double *desired,
 		{
 				for(int i = 0; i < (l == 0 ? inputSize : layerSize[l - 1]); i++)
 				{
-						for(int j = 0; layerSize[l]; j++)
+						for(int j = 0; j < layerSize[l]; j++)
 						{
 								weightDelta = TrainingRate * delta[l][j] *
-															(l == 0 ? input[i] : layerOutput[l - 1][i]);
-								weights[l][i][j] -= weightDelta + 
-																		Momentum * previousWeightDelta[l][i][j];
+															(l == 0 ? input[i] : layerOutput[l - 1][i]) *
+															sigmoid_derivate(layerInput[l][j])
+															+ Momentum * previousWeightDelta[l][i][j];
+								weights[l][i][j] += weightDelta;
 								previousWeightDelta[l][i][j] = weightDelta;
 						}
 				}
@@ -177,7 +173,7 @@ double Train(double *input, double *desired,
 				for(int i = 0; i < layerSize[l]; i++)
 				{
 						biasDelta = TrainingRate * delta[l][i];
-						bias[l][i] -= biasDelta + Momentum * previousBiasDelta[l][i];
+						bias[l][i] += biasDelta + Momentum * previousBiasDelta[l][i];
 						previousBiasDelta[l][i] = biasDelta;
 				}
 		}
@@ -188,11 +184,11 @@ double Train(double *input, double *desired,
 int main_neural(void)
 {		
 		int layerSizes[3] = {1, 2, 1};
-		Initialize(layerSizes);
+		Initialize(layerSizes, 3);
 		double input[1] = {0.0};
 		double desired[1] = {0.1};
 		double output[1];
-		double error = 0;
+		double error = 0.0;
 
 		for(int i = 0; i < 1000; i++)
 		{
