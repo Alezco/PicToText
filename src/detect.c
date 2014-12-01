@@ -5,6 +5,32 @@
 #include <stdbool.h>
 #include "detect.h"
 
+void start()
+{
+    SDL_Surface *ecran = NULL, *image = NULL;
+    SDL_Rect position;
+
+    position.x = 0;
+    position.y = 0;
+ 
+    SDL_Init(SDL_INIT_VIDEO);
+    image = IMG_Load("src/image/1.bmp");
+    ecran = SDL_SetVideoMode(image->w, image->h, 32, SDL_HWSURFACE);
+    SDL_WM_SetCaption("PicToText", NULL);
+
+    //image = IMG_Load("src/image/1.bmp");
+
+    processing(image,1,1,1);
+
+    //SDL_BlitSurface(image, NULL, ecran, &position);
+ 
+    SDL_Flip(ecran);
+    //pause_p();
+ 
+    SDL_FreeSurface(image);
+    SDL_Quit();
+}
+
 void draw(SDL_Surface *surface, SDL_Rect rect, Uint32 color)
 {
   for (int i = 0; i<rect.w; i++)
@@ -289,16 +315,48 @@ int detect_block(SDL_Surface *surface,int tab_x[],SDL_Rect t_rect[surface->w])
   return count;
 }
 
-
+int getspace(SDL_Rect rect[], int size, SDL_Rect t_rect[])
+{
+  printf("debut de merde \n");
+  int space = 0;
+  int sum = 0;
+  int rect_c = 0;
+  for (int i = 0; i < size-1; i++)
+    {
+      space = (rect[i+1].x - (rect[i].x+rect[i].w)) + space;
+      //printf("\n space %d\n", space);
+      //printf("ju = %d", (rect[i].w));
+      sum++;
+    }
+  int ref = space / sum;
+  //printf("ref = %d ", ref);
+  for (int i = 0; i < size-1; i++)
+    {
+      SDL_Rect nr;
+      if (rect[i+1].x - (rect[i].x+rect[i].w) > ref)
+	{
+	  //printf("ok");
+	  nr.x = rect[i].x + rect[i].w;
+	  nr.h = rect[i].h;
+	  nr.y = rect[i].y;
+	  nr.w = rect[i+1].x - (rect[i].x+rect[i].w);
+	  printf("%d %d %d %d \n",nr.x,nr.y,nr.w,nr.h );
+	  t_rect[rect_c] = nr;
+	  rect_c++;
+	}
+    }
+  return rect_c;
+}
 
 void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3)
 {
     SDL_PixelFormat *fmt;
-    Uint32 pixel_red, pixel_green, pixel_blue;
+    Uint32 pixel_red, pixel_green, pixel_blue, pixel_yellow;
     fmt = surface->format;
     pixel_red = SDL_MapRGB(fmt, 255, 0, 0);
     pixel_green = SDL_MapRGB(fmt, 0, 255, 0);
     pixel_blue = SDL_MapRGB(fmt, 0, 0, 255);
+    pixel_yellow = SDL_MapRGB(fmt, 255, 255, 0);
     
     int x[surface->w];
     analysis_x(surface, x);
@@ -322,7 +380,17 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3)
 	   SDL_Rect rect_c[(rect[j].w*rect[j].h)/5];
 	   int tab[rect[j].w];
 	   analysis_x_2(surface, rect[j], tab);
+	   //
+	   //SDL_Rect rect_espace[(rect[j].w*rect[j].h)/5];
+	   //int data = getspace(rect,rect_size_t,rect_espace);
+	   //printf("MERDE = %d ", data);
+	   //
 	   int rect2_size_t = detect_char(tab, rect_c, rect[j]);
+	   //
+	   SDL_Rect rect_espace[(rect[j].w*rect[j].h)/5];
+	   int data = getspace(rect_c,rect2_size_t,rect_espace);
+	   printf("MERDE = %d ", data);
+	   //
 	   for (int z = 0; z < rect2_size_t; z++)
 	   {
 	     int y2_2[rect_c[z].h];
@@ -330,11 +398,12 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3)
 	     SDL_Rect rect_r[(rect_c[z].h*rect_c[z].w)/5];
 	     int rect_size_r;
 	     rect_size_r = detect_line(y2_2,rect_r,rect_c[z]);
-	     for (int k = 0; k < rect_size_r; k++)
+	     for (int k = 0; k < data; k++)
 	       {
 		 if (lvl1 == 1)
 		   {
-		     draw(surface, rect_r[k], pixel_green);
+		     //draw(surface, rect_r[k], pixel_green);
+		     draw(surface, rect_espace[k],pixel_yellow);
 		   }
 	       }
 	   }
@@ -348,6 +417,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3)
 	     draw(surface, rect_b[i], pixel_blue);
 	   }
     }
+    SDL_SaveBMP(surface, "sortit");
 }
 
 void pause_p()

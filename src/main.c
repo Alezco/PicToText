@@ -9,16 +9,16 @@
 
 int main(int argc, char *argv[])
 {
-	main_gtk(argc, argv);
+  //main_gtk(argc, argv);
     printf("STARTING ...\n");
-    main_neural();
+    //main_neural();
     /*SDL_Surface *ecran = NULL, *image = NULL;
     SDL_Rect position;
 
     position.x = 0;
     position.y = 0;
  
-    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO);*/
     
     int lvl1, lvl2, lvl3;
     lvl1 = 1;
@@ -26,11 +26,11 @@ int main(int argc, char *argv[])
     lvl3 = 1;
     if (argc < 2)
      {
-         image = IMG_Load("src/image/1.bmp");
+       //image = IMG_Load("src/image/1.bmp");
      }
      else
      {
-        image = IMG_Load(argv[1]);
+       // image = IMG_Load(argv[1]);
 	if (argc == 3)
 	  {
 	    lvl1 = atoi(argv[2]);
@@ -50,19 +50,21 @@ int main(int argc, char *argv[])
 	
      }
  
-    ecran = SDL_SetVideoMode(image->w, image->h, 32, SDL_HWSURFACE);
-    SDL_WM_SetCaption("PicToText", NULL);
+    main_gtk(argc, argv);
+
+    /*ecran = SDL_SetVideoMode(image->w, image->h, 32, SDL_HWSURFACE);
+      SDL_WM_SetCaption("PicToText", NULL);*/
  
     //processing(image, lvl1, lvl2, lvl3);
    
-    SDL_BlitSurface(image, NULL, ecran, &position);
+    /*SDL_BlitSurface(image, NULL, ecran, &position);
  
     SDL_Flip(ecran);
     pause();
  
     SDL_FreeSurface(image);
     SDL_Quit();
-    printf("EXIT WITH SUCESS !\n");
-	*/
+    printf("EXIT WITH SUCESS !\n");*/
+	
     return EXIT_SUCCESS;
 }

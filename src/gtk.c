@@ -1,11 +1,18 @@
 #include "gtk.h"
 #include "neuralnetwork.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
+#include <stdbool.h>
+#include "detect.h"
 
-int open_dialog(gpointer window, gpointer pVbox)
+int open_dialog(GtkWidget *widget,gpointer window, gpointer pVbox)
 {
 	GtkWidget *dialog, *label, *image, *pHbox;
 	image = NULL;
 	pHbox = NULL;
+	widget = NULL;
 	dialog = gtk_file_chooser_dialog_new("Chemin d'accès",
 					GTK_WINDOW(window),
 					GTK_FILE_CHOOSER_ACTION_OPEN,
@@ -45,7 +52,21 @@ int open_dialog(gpointer window, gpointer pVbox)
 
 	return 0;
 }
+void process()
+{
+  start();
+  GtkWidget *image, *pHbox, *window;
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_default_size(GTK_WINDOW(window),1550,900);
+  gtk_container_set_border_width(GTK_CONTAINER(window),10);
 
+  pHbox = gtk_hbox_new(FALSE,8);
+  image = gtk_image_new_from_file("sortit");
+  gtk_box_pack_start(GTK_BOX(pHbox), image, FALSE,TRUE,0);
+  gtk_container_add(GTK_CONTAINER(window), pHbox);
+  gtk_container_add(GTK_CONTAINER(pHbox), image);
+  gtk_widget_show_all(window);
+}
 void Quit(gpointer data)
 {
 	GtkWidget *pQuestion;
@@ -116,6 +137,9 @@ int main_gtk(int argc, char *argv[])
 	gtk_signal_connect_object(GTK_OBJECT(button3),"clicked",
 					GTK_SIGNAL_FUNC(Quit),
 					GTK_OBJECT(window));
+	gtk_signal_connect_object(GTK_OBJECT(button2),"clicked",
+				  GTK_SIGNAL_FUNC(process),
+				  GTK_OBJECT(window));
 	/* Display the window */
 	gtk_widget_show_all (window);
 	/* Enter the event loop */
