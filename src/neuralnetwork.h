@@ -8,6 +8,8 @@ long double RandomVal(void);
 void Run(double *input, double *output);
 double Train(double *input, double *desired,
 						 double TrainingRate, double Momentum);
-int main_neural(void);
+void Save();
+void Load();
+int main_neural(char a);
 
 #endif

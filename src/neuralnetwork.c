@@ -4,6 +4,8 @@
 #include <time.h>
 #include "neuralnetwork.h"
 
+#define TAILLE_MAX 1000
+
 int layerCount; //nb couches 
 int inputSize;  //nb n dans input
 int *layerSize; //nb n par couche
@@ -104,7 +106,7 @@ void Run(double *input, double *output)
 						for(int i = 0; i < (l == 0 ? inputSize : layerSize[l - 1]); i++)
 						{
 								sum += weights[l][i][j] * 
-											 (l == 0 ? input[i] : layerOutput[l - 1][i]);
+										(l == 0 ? input[i] : layerOutput[l - 1][i]);
 						}
 
 						sum += bias[l][j];
@@ -117,7 +119,7 @@ void Run(double *input, double *output)
 				output[i] = layerOutput[layerCount - 1][i];
 }
 double Train(double *input, double *desired, 
-						 double TrainingRate, double Momentum)
+				double TrainingRate, double Momentum)
 {
 		double error = 0.0;
 		double sum = 0.0;
@@ -159,9 +161,9 @@ double Train(double *input, double *desired,
 						for(int j = 0; j < layerSize[l]; j++)
 						{
 								weightDelta = TrainingRate * delta[l][j] *
-															(l == 0 ? input[i] : layerOutput[l - 1][i]) *
-															sigmoid_derivate(layerInput[l][j])
-															+ Momentum * previousWeightDelta[l][i][j];
+										(l == 0 ? input[i] : layerOutput[l - 1][i]) *
+										sigmoid_derivate(layerInput[l][j])
+										+ Momentum * previousWeightDelta[l][i][j];
 								weights[l][i][j] += weightDelta;
 								previousWeightDelta[l][i][j] = weightDelta;
 						}
@@ -181,24 +183,113 @@ double Train(double *input, double *desired,
 		return error;
 }
 
-int main_neural(void)
+void Save()
+{
+		FILE *file = NULL;
+
+		file = fopen("weights.txt", "w+");
+
+		if(file != NULL)
+		{
+				for(int l = 0; l < layerCount; l++)
+						for(int i = 0; i < (l == 0 ? inputSize : layerSize[l - 1]); i++)
+								for(int j = 0; j < layerSize[l]; j++)
+										fprintf(file, "%f\n", weights[l][i][j]);
+				fclose(file);
+		}
+		else
+				printf("Impossible d'ouvrir weights.txt");
+
+		file = fopen("bias.txt", "w+");
+
+		if(file != NULL)
+		{
+				for(int l = 0; l < layerCount; l++)
+						for(int i = 0; i < layerSize[l]; i++)
+								fprintf(file, "%f\n", bias[l][i]);
+				fclose(file);
+		}
+		else
+				printf("Impossible d'ouvrir bias.txt");
+}
+
+void Load()
+{
+		FILE *file_weights = NULL;
+		FILE *file_bias = NULL;
+
+		file_weights = fopen("weights.txt", "r");
+		file_bias = fopen("bias.txt", "r");
+
+		char c[TAILLE_MAX] = "";
+
+		if(file_weights != NULL && file_bias != NULL)
+		{
+				for(int l = 0; l < layerCount; l++)
+						for(int i = 0; i < (l == 0 ? inputSize : layerSize[l - 1]); i++)
+								for(int j = 0; j < layerSize[l]; j++)
+								{
+										fgets(c, TAILLE_MAX, file_weights);
+										weights[l][i][j] = atof(c);
+								}
+
+				fclose(file_weights);
+
+				for(int l = 0; l < layerCount; l++)
+						for(int i = 0; i < layerSize[l]; i++)
+						{
+								fgets(c, TAILLE_MAX, file_bias);
+								bias[l][i] = atof(c);
+						}
+				
+				fclose(file_bias);
+		}
+}
+
+int main_neural(char a)
 {		
-		int layerSizes[3] = {1, 2, 1};
+		int layerSizes[3] = {2, 4, 1};
 		Initialize(layerSizes, 3);
-		double input[1] = {0.0};
-		double desired[1] = {0.1};
-		double output[1];
+		double input[4][2];
+		double output[4][1];
+		input[0][0] = 0.0;
+		input[0][1] = 0.0;
+		output[0][0] = 0.0;
+		input[1][0] = 1.0;
+		input[1][1] = 0.0;
+		output[1][0] = 1.0;
+		input[2][0] = 0.0;
+		input[2][1] = 1.0;
+		output[2][0] = 1.0;
+		input[3][0] = 1.0;
+		input[3][1] = 1.0;
+		output[3][0] = 0.0;
 		double error = 0.0;
 
-		for(int i = 0; i < 1000; i++)
+		if(a == 'l')
+		{}
+				Load();
+
+		int max_count = 5000;
+		int count = 0;
+		do
 		{
-				error = Train(input, desired, 0.15, 0.1);
-				Run(input, output);
-				
-				if(i % 100 == 0)
-						printf("Iteration : %d\n Input : %f\n Output : %f\n Error : %f\n", 
-						       i, input[0], output[0], error);
-		}
+				count++;
+				error = 0.0;
+				for(int i = 0; i < 4; i++)
+						error += Train(input[i], output[i], 0.15, 0.1);
+				double networkOutput[1];
+				for(int i = 0; i < 4; i++)
+				{
+						Run(input[i], networkOutput);
+						printf("Pattern : %d : %d XOR %d = %f\n",
+										i+1, (int)input[i][0], (int)input[i][1], networkOutput[0]);
+				}
+				printf("\n");
+
+		} while(error > 0.0001 && count <= max_count);
+
+		Save();
 
 		return 0;
 }

@@ -61,7 +61,7 @@ void process()
   gtk_container_set_border_width(GTK_CONTAINER(window),10);
 
   pHbox = gtk_hbox_new(FALSE,8);
-  image = gtk_image_new_from_file("sortit");
+  image = gtk_image_new_from_file("sortie");
   gtk_box_pack_start(GTK_BOX(pHbox), image, FALSE,TRUE,0);
   gtk_container_add(GTK_CONTAINER(window), pHbox);
   gtk_container_add(GTK_CONTAINER(pHbox), image);
