@@ -5,11 +5,12 @@
 #include <stdbool.h>
 #include "detect.h"
 #include <math.h>
+#include "traitement.c"
 
 #define Max(x, y) (((x) > (y)) ? (x) : (y))
 #define Min(x, y) (((x) < (y)) ? (x) : (y))
 
-void start()
+void start(char *path)
 {
 		SDL_Surface *ecran = NULL, *image = NULL;
 		SDL_Rect position;
@@ -18,7 +19,7 @@ void start()
 		position.y = 0;
 
 		SDL_Init(SDL_INIT_VIDEO);
-		image = IMG_Load("image/1.bmp");
+		image = IMG_Load(path);
 		ecran = SDL_SetVideoMode(image->w, image->h, 32, SDL_HWSURFACE);
 		SDL_WM_SetCaption("PicToText", NULL);
 
@@ -346,13 +347,98 @@ int getspace(SDL_Rect rect[], int size, SDL_Rect t_rect[])
 		}
 		return rect_c;
 }
-
 void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3)
 {
-	  int bin[surface->w*surface->h];
+  //convolution(surface, 3, gauss);
+
+  //grey(surface);
+  //convolution(surface, 3, gauss);
+  
+  //surface = SDL_LoadBMP("data.bmp");
+  binaire(surface);
+  
+  int test = 0;
+  
+  //int resized[1000];
+  int bin[surface->w*surface->h];
+  int plop[surface->w*surface->h];
+  toBinary(surface, bin);
+
+    SDL_PixelFormat *fmt;
+    Uint32 pixel_red, pixel_green, pixel_blue;
+    fmt = surface->format;
+    pixel_red = SDL_MapRGB(fmt, 255, 0, 0);
+    pixel_green = SDL_MapRGB(fmt, 0, 255, 0);
+    pixel_blue = SDL_MapRGB(fmt, 0, 0, 255);
+    
+    int x[surface->w];
+    analysis_x(surface, x);
+    int y[surface->h];
+    analysis_y(surface, y);
+
+    SDL_Rect rect_b[(surface->w*surface->h)/4];
+    int rect_size_t_b = 0;
+    rect_size_t_b = detect_block(surface,x, rect_b);
+
+    for (int i = 0; i<rect_size_t_b; i++)
+    {
+      //printf("bloc\n");
+         int y2[surface->h];
+	 analysis_y_2(surface, rect_b[i], y2);
+	 SDL_Rect rect[(rect_b[i].h*rect_b[i].w)/5];
+	 int rect_size_t;
+	 rect_size_t = detect_line(y2,rect,rect_b[i]);
+
+	 for (int j = 0; j < rect_size_t; j++)
+	 {
+	   SDL_Rect rect_c[(rect[j].w*rect[j].h)/5];
+	   int tab[rect[j].w];
+	   analysis_x_2(surface, rect[j], tab);
+	   int rect2_size_t = detect_char(tab, rect_c, rect[j]);
+	   for (int z = 0; z < rect2_size_t; z++)
+	   {
+	     test = 0;
+	     int y2_2[rect_c[z].h];
+	     analysis_y_2(surface, rect_c[z], y2_2);
+	     SDL_Rect rect_r[(rect_c[z].h*rect_c[z].w)/5];
+	     int rect_size_r;
+	     rect_size_r = detect_line(y2_2,rect_r,rect_c[z]);
+	     for (int k = 0; k < rect_size_r; k++)
+	       {
+		 if (lvl1 == 1)
+		   {
+		     draw(surface, rect_r[k], pixel_green);
+		     if (test < rect_size_r)
+		       {
+			 squareBorder(surface ,bin, plop, rect_r[k], calcul_m(rect_r[k].h,rect_r[k].w));
+			 print_matrix(plop, calcul_m(rect_r[k].h,rect_r[k].w),calcul_m(rect_r[k].h,rect_r[k].w));
+			 printf("\n\n");
+			 /*resizePixels(plop,calcul_m(rect_r[k].h,rect_r[k].w),calcul_m(rect_r[k].h,rect_r[k].w), 32, 32, resized);
+			   print_matrix(resized, 32,32);*/
+		     	 test++;
+			 }
+		   }
+	       }
+	   }
+	   if (lvl2 == 1) 
+	     {
+	       draw(surface, rect[j], pixel_red);
+	     }
+	   }
+	 if (lvl3 == 1)
+	   {
+	     draw(surface, rect_b[i], pixel_blue);
+	   }
+   }
+    SDL_SaveBMP(surface, "sortie");
+}
+/*void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3)
+{
+	        int bin[surface->w*surface->h];
+		toBinary(surface, bin);
 		int test = 0;
-		int plop[1000];
-		int resized[1000];
+		int plop[surface->w*surface->h];
+		int resized[surface->w*surface->h];
 		SDL_PixelFormat *fmt;
 		Uint32 pixel_red, pixel_green, pixel_blue, pixel_yellow;
 		fmt = surface->format;
@@ -386,8 +472,8 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3)
 
 						int rect2_size_t = detect_char(tab, rect_c, rect[j]);
 						//
-						SDL_Rect rect_espace[(rect[j].w*rect[j].h)/5];
-						int data = getspace(rect_c,rect2_size_t,rect_espace);
+						//SDL_Rect rect_espace[(rect[j].w*rect[j].h)/5];
+						//int data = getspace(rect_c,rect2_size_t,rect_espace);
 
 						//
 						for (int z = 0; z < rect2_size_t; z++)
@@ -397,16 +483,18 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3)
 								SDL_Rect rect_r[(rect_c[z].h*rect_c[z].w)/5];
 								int rect_size_r;
 								rect_size_r = detect_line(y2_2,rect_r,rect_c[z]);
-								for (int k = 0; k < data; k++)
+								//	printf("%d",data);
+								for (int k = 0; k < rect_size_r; k++)
 								{
 										if (lvl1 == 1)
 										{
-												//draw(surface, rect_r[k], pixel_green);
-												draw(surface, rect_espace[k],pixel_yellow);
+												draw(surface, rect_r[k], pixel_green);
+												//draw(surface, rect_espace[k],pixel_yellow);
 
 												//ligne code hadrien
-												if (test < 26)
+												if (test < 10)
 												{
+												  printf("test ! \n");
 													squareBorder(surface ,bin, plop, rect_r[k], calcul_m(rect_r[k].h,rect_r[k].w));
 													 print_matrix(plop, calcul_m(rect_r[k].h,rect_r[k].w),calcul_m(rect_r[k].h,rect_r[k].w));
 													 printf("\n\n");
@@ -427,7 +515,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3)
 				}
 		}
 		SDL_SaveBMP(surface, "sortie");
-}
+		}*/
 
 void pause_p()
 {
@@ -471,7 +559,7 @@ void print_matrix(int matrix[], int h, int w)
 				{
 						if (matrix[c] == 1)
 						{
-								printf("%d ", matrix[c]);
+								printf("%d", matrix[c]);
 						}
 						else
 								printf(" ");
@@ -479,6 +567,7 @@ void print_matrix(int matrix[], int h, int w)
 				}
 		}
 }
+
 int calcul_m(int x, int y)
 {
 		if (x >= y)

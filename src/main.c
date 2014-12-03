@@ -10,13 +10,23 @@
 int main(int argc, char *argv[])
 {
 		printf("STARTING ...\n");
-		if(argc > 1)
+		if(argc > 2)
 		{
 				char a = *argv[1];
+				start(argv[2]);
 				main_neural(a);
 		}
+		else if (argc > 1)
+		  {
+			start(argv[1]);
+			main_neural('b');
+		  }
 		else
-				main_neural('b');
+		  {
+		    start("image/1.bmp");
+		    main_neural('b');
+		  }
+
 		/*SDL_Surface *ecran = NULL, *image = NULL;
 			SDL_Rect position;
 
@@ -25,7 +35,7 @@ int main(int argc, char *argv[])
 
 			SDL_Init(SDL_INIT_VIDEO);*/
 
-		main_gtk(argc, argv);
+		//main_gtk(argc, argv);
 
 		/*ecran = SDL_SetVideoMode(image->w, image->h, 32, SDL_HWSURFACE);
 			SDL_WM_SetCaption("PicToText", NULL);*/

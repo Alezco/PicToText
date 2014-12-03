@@ -3,6 +3,7 @@
 #include <math.h>
 #include <time.h>
 #include "neuralnetwork.h"
+#include "detext.h"
 
 #define TAILLE_MAX 1000
 
