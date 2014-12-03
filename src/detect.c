@@ -18,7 +18,7 @@ void start()
 		position.y = 0;
 
 		SDL_Init(SDL_INIT_VIDEO);
-		image = IMG_Load("src/image/1.bmp");
+		image = IMG_Load("image/1.bmp");
 		ecran = SDL_SetVideoMode(image->w, image->h, 32, SDL_HWSURFACE);
 		SDL_WM_SetCaption("PicToText", NULL);
 
@@ -349,6 +349,10 @@ int getspace(SDL_Rect rect[], int size, SDL_Rect t_rect[])
 
 void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3)
 {
+	  int bin[surface->w*surface->h];
+		int test = 0;
+		int plop[1000];
+		int resized[1000];
 		SDL_PixelFormat *fmt;
 		Uint32 pixel_red, pixel_green, pixel_blue, pixel_yellow;
 		fmt = surface->format;
@@ -399,6 +403,16 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3)
 										{
 												//draw(surface, rect_r[k], pixel_green);
 												draw(surface, rect_espace[k],pixel_yellow);
+
+												//ligne code hadrien
+												if (test < 26)
+												{
+													squareBorder(surface ,bin, plop, rect_r[k], calcul_m(rect_r[k].h,rect_r[k].w));
+													 print_matrix(plop, calcul_m(rect_r[k].h,rect_r[k].w),calcul_m(rect_r[k].h,rect_r[k].w));
+													 printf("\n\n");
+													 resizePixels(plop,calcul_m(rect_r[k].h,rect_r[k].w),calcul_m(rect_r[k].h,rect_r[k].w), 32, 32, resized);
+															 print_matrix(resized, 32,32);
+																									 			 test++;}
 										}
 								}
 						}
@@ -412,7 +426,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3)
 						draw(surface, rect_b[i], pixel_blue);
 				}
 		}
-		SDL_SaveBMP(surface, "sortit");
+		SDL_SaveBMP(surface, "sortie");
 }
 
 void pause_p()

@@ -187,7 +187,7 @@ void Save()
 {
 		FILE *file = NULL;
 
-		file = fopen("weights.txt", "w+");
+		file = fopen("save/weights.txt", "w+");
 
 		if(file != NULL)
 		{
@@ -200,7 +200,7 @@ void Save()
 		else
 				printf("Impossible d'ouvrir weights.txt");
 
-		file = fopen("bias.txt", "w+");
+		file = fopen("save/bias.txt", "w+");
 
 		if(file != NULL)
 		{
@@ -218,8 +218,8 @@ void Load()
 		FILE *file_weights = NULL;
 		FILE *file_bias = NULL;
 
-		file_weights = fopen("weights.txt", "r");
-		file_bias = fopen("bias.txt", "r");
+		file_weights = fopen("save/weights.txt", "r");
+		file_bias = fopen("save/bias.txt", "r");
 
 		char c[TAILLE_MAX] = "";
 
@@ -266,8 +266,7 @@ int main_neural(char a)
 		output[3][0] = 0.0;
 		double error = 0.0;
 
-		if(a == 'l')
-		{}
+		if(a == 'b')
 				Load();
 
 		int max_count = 5000;
@@ -276,20 +275,29 @@ int main_neural(char a)
 		{
 				count++;
 				error = 0.0;
-				for(int i = 0; i < 4; i++)
-						error += Train(input[i], output[i], 0.15, 0.1);
+
+				if(a == 't')
+				{
+
+						for(int i = 0; i < 4; i++)
+								error += Train(input[i], output[i], 0.15, 0.1);
+				}
+
 				double networkOutput[1];
+
 				for(int i = 0; i < 4; i++)
 				{
 						Run(input[i], networkOutput);
 						printf("Pattern : %d : %d XOR %d = %f\n",
-										i+1, (int)input[i][0], (int)input[i][1], networkOutput[0]);
+									 i+1, (int)input[i][0], (int)input[i][1], networkOutput[0]);
 				}
+
 				printf("\n");
 
 		} while(error > 0.0001 && count <= max_count);
-
-		Save();
+		
+		if(a == 't')
+			Save();
 
 		return 0;
 }

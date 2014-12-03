@@ -10,10 +10,13 @@
 int main(int argc, char *argv[])
 {
 		printf("STARTING ...\n");
-		if(argc > 0)
-				main_neural(**argv);
+		if(argc > 1)
+		{
+				char a = *argv[1];
+				main_neural(a);
+		}
 		else
-				main_neural('\0');
+				main_neural('b');
 		/*SDL_Surface *ecran = NULL, *image = NULL;
 			SDL_Rect position;
 
