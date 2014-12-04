@@ -9,47 +9,45 @@
 
 int main(int argc, char *argv[])
 {
-		printf("STARTING ...\n");
-		if(argc > 2)
-		{
-				char a = *argv[1];
-				start(argv[2]);
-				main_neural(a);
-		}
-		else if (argc > 1)
-		  {
-			start(argv[1]);
-			main_neural('b');
-		  }
-		else
-		  {
-		    start("image/1.bmp");
-		    main_neural('b');
-		  }
+	printf("STARTING ...\n");
 
-		/*SDL_Surface *ecran = NULL, *image = NULL;
-			SDL_Rect position;
+	if(argc > 2)
+	{
+		char a = *argv[1];
+		start(argv[2], a);
+	}
+	else if (argc > 1)
+	{
+		start(argv[1],'b');
+	}
+	else
+	{
+		start("image/arial.jpg", 'b');
+	}
 
-			position.x = 0;
-			position.y = 0;
+	/*SDL_Surface *ecran = NULL, *image = NULL;
+		SDL_Rect position;
 
-			SDL_Init(SDL_INIT_VIDEO);*/
+		position.x = 0;
+		position.y = 0;
 
-		//main_gtk(argc, argv);
+		SDL_Init(SDL_INIT_VIDEO);*/
 
-		/*ecran = SDL_SetVideoMode(image->w, image->h, 32, SDL_HWSURFACE);
-			SDL_WM_SetCaption("PicToText", NULL);*/
+	//main_gtk(argc, argv);
 
-		//processing(image, lvl1, lvl2, lvl3);
+	/*ecran = SDL_SetVideoMode(image->w, image->h, 32, SDL_HWSURFACE);
+		SDL_WM_SetCaption("PicToText", NULL);*/
 
-		/*SDL_BlitSurface(image, NULL, ecran, &position);
+	//processing(image, lvl1, lvl2, lvl3);
 
-			SDL_Flip(ecran);
-			pause();
+	/*SDL_BlitSurface(image, NULL, ecran, &position);
 
-			SDL_FreeSurface(image);
-			SDL_Quit();
-			printf("EXIT WITH SUCESS !\n");*/
+		SDL_Flip(ecran);
+		pause();
 
-		return EXIT_SUCCESS;
+		SDL_FreeSurface(image);
+		SDL_Quit();
+		printf("EXIT WITH SUCESS !\n");*/
+
+	return EXIT_SUCCESS;
 }

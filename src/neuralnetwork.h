@@ -1,6 +1,9 @@
 #ifndef NEURALNETWORK_H
 #define NEURALNETWORK_H
 
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
+
 long double sigmoid(long double x);
 long double sigmoid_derivate(long double x);
 void Initialize(int *layerSizes, int layerSizesLength); 
@@ -10,6 +13,7 @@ double Train(double *input, double *desired,
 						 double TrainingRate, double Momentum);
 void Save();
 void Load();
-int main_neural(char a);
+int main_neural(int size, char a, int input2[size][256]);
+void convert(int size, int input[size][256], double res[size][256]);
 
 #endif

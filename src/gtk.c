@@ -54,7 +54,7 @@ int open_dialog(GtkWidget *widget,gpointer window, gpointer pVbox)
 }
 void process()
 {
-  start();
+  //start();
   GtkWidget *image, *pHbox, *window;
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_default_size(GTK_WINDOW(window),1550,900);

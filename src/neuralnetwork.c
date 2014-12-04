@@ -1,9 +1,12 @@
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
 #include "neuralnetwork.h"
-#include "detext.h"
+#include "detect.h"
+
 
 #define TAILLE_MAX 1000
 
@@ -247,10 +250,26 @@ void Load()
 		}
 }
 
-int main_neural(char a)
+
+void convert(int size, int input[size][256], double res[size][256])
+{
+  for (int i = 0; i < size; i++)
+    {
+      for (int j = 0; j < 256; j++)
+	{
+	  res[i][j] = (double)(input[i][j]);
+	}
+    }
+
+}
+int main_neural(int size, char a, int input2[size][256])
 {		
 		int layerSizes[3] = {2, 4, 1};
 		Initialize(layerSizes, 3);
+		//double input[52][256];
+		input2[0][0] = 1; //DEBUG
+		//convert(52, input2, input);
+		//double output[52][52];
 		double input[4][2];
 		double output[4][1];
 		input[0][0] = 0.0;

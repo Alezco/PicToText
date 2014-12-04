@@ -6,6 +6,6 @@ CFLAGS = -Wall -Wextra -Werror -O2 -std=c99 -g
 SRC = src/gtk.c src/detect.c src/neuralnetwork.c src/main.c
 
 all:
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDLIBS) $(SRC) $(GTK_CFLAGS) -lm -o PicToText
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(SRC) $(GTK_CFLAGS)$(LDLIBS) -lm -o PicToText
 clean: 
 	rm -rf *.o
