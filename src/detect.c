@@ -118,7 +118,7 @@ void analysis_x(SDL_Surface *surface, int row[surface->w])
 
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 {
-    int bpp = surface->format->BytesPerPixel; 
+    int bpp = surface->format->BytesPerPixel;
     Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
 
     switch(bpp) {
@@ -150,7 +150,7 @@ void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 
 Uint32 getpixel(SDL_Surface *surface, int x, int y)
 {
-    int bpp = surface->format->BytesPerPixel; 
+    int bpp = surface->format->BytesPerPixel;
     Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
 
     switch(bpp) {
@@ -259,7 +259,7 @@ int detect_line(int g_tab_y[], SDL_Rect t_rect[], SDL_Rect rectangle_p)
             full_y = true;
             rectangle.y = i+rectangle_p.y;
         }
-        if (g_tab_y[i] == 1 && full_y) 
+        if (g_tab_y[i] == 1 && full_y)
         {
             rectangle.h = i+rectangle_p.y - rectangle.y + 1;//
             rectangle.x = rectangle_p.x;
@@ -283,7 +283,7 @@ int detect_char(int g_tab_x[], SDL_Rect t_rect[], SDL_Rect rectangle_p)
             full_x = true;
             rectangle.x = i+rectangle_p.x;
         }
-        if (g_tab_x[i] == 1 && full_x) 
+        if (g_tab_x[i] == 1 && full_x)
         {
             rectangle.w = i+rectangle_p.x - rectangle.x;
             rectangle.y = rectangle_p.y;
@@ -351,13 +351,29 @@ int getspace(SDL_Rect rect[], int size, SDL_Rect t_rect[])
     return rect_c;
 }
 
-void array_t(SDL_Surface *surface, int size, int in[surface->w*surface->h], double out[size][256])
+void print_double(int size, double matrix[size][256])
+{
+    for (int i = 0; i < size; i++)
+    {
+        printf("\n\n\n");
+        for (int j = 0; j < 256; j++)
+        {
+            if (j%16 == 0)
+            {
+                printf("\n");
+            }
+            printf("%f", matrix[i][j]);
+        }
+    }
+}
+
+void array_t(SDL_Surface *surface, int size, int in[surface->w*surface->h][256], double out[size][256])
 {
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < 256; j++)
         {
-            if (in[i*size + j] == 1)
+            if (in[i][j] == 1)
             {
                 out[i][j] = 1;
             }
@@ -367,6 +383,7 @@ void array_t(SDL_Surface *surface, int size, int in[surface->w*surface->h], doub
             }
             //printf("%d %d\n", i, j);
             //out[i][j] = in[i*size + j];
+            //printf("%d %f", in[0][0], out[0][0]);
         }
     }
 }
@@ -384,9 +401,9 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
     int test = 0;
     int count1 = 0;
     int plop[surface->w*surface->h];
-    int array_char_0[surface->w*surface->h];
+    int array_char_0[(surface->w*surface->h)/100][256];
     //int array_char[surface->w*surface->h][256];
-    int resized[surface->w*surface->h];
+    int resized[256];
     int bin[surface->w*surface->h];
     toBinary(surface, bin);
 
@@ -434,23 +451,34 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
                     if (lvl1 == 1)
                     {
                         //draw(surface, rect_r[k], pixel_green);
-                        if (test < rect_size_r)
+
+                        squareBorder(surface ,bin, plop, rect_r[k], calcul_m(rect_r[k].h,rect_r[k].w));
+                        //print_matrix(plop, calcul_m(rect_r[k].h,rect_r[k].w),calcul_m(rect_r[k].h,rect_r[k].w));
+                        //printf("\n\n");
+                        resizePixels(plop,calcul_m(rect_r[k].h,rect_r[k].w),calcul_m(rect_r[k].h,rect_r[k].w), 16, 16, resized);
+                        printf("\n\n");
+                        printf("val = %d \n", count1);
+                        for(int g = 0; g < 256; g++)
                         {
-                            squareBorder(surface ,bin, plop, rect_r[k], calcul_m(rect_r[k].h,rect_r[k].w));
-                            print_matrix(plop, calcul_m(rect_r[k].h,rect_r[k].w),calcul_m(rect_r[k].h,rect_r[k].w));
-                            //printf("\n\n");
-                            resizePixels(plop,calcul_m(rect_r[k].h,rect_r[k].w),calcul_m(rect_r[k].h,rect_r[k].w), 16, 16, resized);
-
-                            array_char_0[count1] = resized[k];
-                            count1++;
-
-                            test++;
+                            if (g%16 == 0)
+                            {
+                                printf("\n");
+                            }
+                            int t = resized[g];
+                            array_char_0[count1][g] = t;
+                            printf("%d", array_char_0[count1][g]);
                         }
+                        //array_char_0[count1][] = resized[k];
+                        count1++;
+
+                        test++;
+
                     }
+                    //printf("zero2 = %d", array_char_0[count1][0]);
                 }
                 //add_array(surface->h*surface->w, array_char, resized, rect_size_r, count);
             }
-            if (lvl2 == 1) 
+            if (lvl2 == 1)
             {
                 //draw(surface, rect[j], pixel_red);
             }
@@ -461,9 +489,24 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
         }
     }
 
+    printf("COUNT = %d", count1);
+    /*for (int h = 0; h < count1; h++)
+      {
+      for(int g = 0; g < 256; g++)
+      {
+      if (g%16 == 0)
+      {
+      printf("\n");
+      }
+      printf("%d", array_char_0[h][g]);
+      }
+      }*/
+
     double array_char[count1][256];
 
     array_t(surface, count1 ,array_char_0, array_char);
+    print_double(count1, array_char);
+
     SDL_SaveBMP(surface, "sortie");
     //TEST
     int layerSizes[3] = {256, 512, count1};
@@ -479,7 +522,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
     for(int i = 0; i < count1; i++)
         output[i] = malloc (sizeof(double) * count1);
 
-		//création de la matrice output identité
+    //création de la matrice output identité
     for(int i = 0; i < count1; i++)
         for(int j = 0; j < count1; j++)
         {
@@ -502,21 +545,21 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
         {
             input[i][j] = array_char[i][j];
         }
-    }		
+    }          
 
     //double output[4][1];
     /*input[0][0] = 0.0;
-    input[0][1] = 0.0;
-    output[0][0] = 0.0;
-    input[1][0] = 1.0;
-    input[1][1] = 0.0;
-    output[1][0] = 1.0;
-    input[2][0] = 0.0;
-    input[2][1] = 1.0;
-    output[2][0] = 1.0;
-    input[3][0] = 1.0;
-    input[3][1] = 1.0;
-    output[3][0] = 0.0;*/
+      input[0][1] = 0.0;
+      output[0][0] = 0.0;
+      input[1][0] = 1.0;
+      input[1][1] = 0.0;
+      output[1][0] = 1.0;
+      input[2][0] = 0.0;
+      input[2][1] = 1.0;
+      output[2][0] = 1.0;
+      input[3][0] = 1.0;
+      input[3][1] = 1.0;
+      output[3][0] = 0.0;*/
     double error = 0.0;
 
     if(a == 'b')
@@ -532,7 +575,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
         if(a == 't')
         {
             for(int i = 0; i < count1; i++)
-                error += Train(input[i], output[i], 0.15, 0.1);
+                error += Train(input[i], output[i], 0.4, 0.15);
         }
 
         double networkOutput[count1];
@@ -541,18 +584,18 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
         {
             Run(input[i], networkOutput);
             /*printf("Pattern : %d : %d XOR %d = %f\n",
-                    i+1, (int)input[i][0], (int)input[i][1], networkOutput[0]);*/
+              i+1, (int)input[i][0], (int)input[i][1], networkOutput[0]);*/
 
-							printf("Pattern : %d", i+1);
-							//affiche la matrice 256 d'entrée de la lettre sous forme de ligne
-							for(int j = 0; j < 256; j++)
-								printf("%f", input[i][j]);
-							
-							printf("\n");
-							
-							//affiche le tabeau de sortie (tab de count1 cases de 0 avec unique 1)
-							for(int k = 0; k < count1; k++)
-								printf("%f", networkOutput[k]);
+            printf("Pattern : %d", i+1);
+            //affiche la matrice 256 d'entrée de la lettre sous forme de ligne
+            for(int j = 0; j < 256; j++)
+                printf("%f\n", input[i][j]);
+
+            printf("\n");
+
+            //affiche le tabeau de sortie (tab de count1 cases de 0 avec unique 1)
+            for(int k = 0; k < count1; k++)
+                printf("%f\n", networkOutput[k]);
         }
 
         printf("\n");
@@ -615,7 +658,7 @@ analysis_y_2(surface, rect_c[z], y2_2);
 SDL_Rect rect_r[(rect_c[z].h*rect_c[z].w)/5];
 int rect_size_r;
 rect_size_r = detect_line(y2_2,rect_r,rect_c[z]);
-//	printf("%d",data);
+//      printf("%d",data);
 for (int k = 0; k < rect_size_r; k++)
 {
 if (lvl1 == 1)
@@ -636,7 +679,7 @@ test++;}
 }
 }
 }
-if (lvl2 == 1) 
+if (lvl2 == 1)
 {
     draw(surface, rect[j], pixel_red);
 }
@@ -669,7 +712,7 @@ void resizePixels(int pixels[],int w1,int h1,int w2,int h2, int tmp[w2*h2])
 {
     double x_ratio = w1/(double)w2 ;
     double y_ratio = h1/(double)h2 ;
-    double px, py ; 
+    double px, py ;
     for (int i=0;i<h2;i++)
     {
         for (int j=0;j<w2;j++)
@@ -711,7 +754,7 @@ int calcul_m(int x, int y)
         return y;
     }
 }
-void squareBorder(SDL_Surface *surface, int Tab[], 
+void squareBorder(SDL_Surface *surface, int Tab[],
         int cTab[], SDL_Rect rect, int m)
 {
     SDL_PixelFormat *fmt;
