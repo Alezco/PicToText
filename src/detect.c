@@ -507,14 +507,14 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 
     SDL_SaveBMP(surface, "sortie");
     //TEST
+
+		//NEURAL NETWORK PART
     int layerSizes[3] = {256, 512, count1};
     Initialize(layerSizes, 3);
 
     //convert(count1, array_char, input);
     //double output[52][52];
 
-
-		//PARTIE RESEAU DE NEURONES
 		double **output;
 
     output = malloc(sizeof(double *) * count1);
@@ -568,7 +568,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 
         double networkOutput[count1];
 
-        for(int i = 0; i < 2; i++) // pour les 2 premiers caractères
+        for(int i = 0; i < count1; i++) 
         {
             Run(input[i], networkOutput);
             
@@ -580,8 +580,8 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
             printf("\n");
 
             //affiche le tabeau de sortie (tab de count1 cases de 0 avec unique 1)
-            /*for(int k = 0; k < count1; k++)
-                printf("%f\n", networkOutput[k]);*/
+            for(int k = 0; k < count1; k++)
+                printf("%f\n", networkOutput[k]);
         }
 
         printf("\n");
