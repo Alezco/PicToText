@@ -466,7 +466,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
     array_t(surface, count1 ,array_char_0, array_char);
     SDL_SaveBMP(surface, "sortie");
     //TEST
-    int layerSizes[3] = {2, 4, 1};
+    int layerSizes[3] = {256, 512, count1};
     Initialize(layerSizes, 3);
 
     //convert(count1, array_char, input);
@@ -474,13 +474,14 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 
     double **output;
 
-    output = malloc(sizeof(double *) * 52);
+    output = malloc(sizeof(double *) * count1);
 
-    for(int i = 0; i < 52; i++)
-        output[i] = malloc (sizeof(double) * 52);
+    for(int i = 0; i < count1; i++)
+        output[i] = malloc (sizeof(double) * count1);
 
-    for(int i = 0; i < 52; i++)
-        for(int j = 0; j < 52; j++)
+		//création de la matrice output identité
+    for(int i = 0; i < count1; i++)
+        for(int j = 0; j < count1; j++)
         {
             if(i == j)
                 output[i][j] = 1;
@@ -490,21 +491,21 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 
     double **input;
 
-    input = malloc(sizeof(double *) * 52);
+    input = malloc(sizeof(double *) * count1);
 
-    for(int i = 0; i < 52; i++)
+    for(int i = 0; i < count1; i++)
         input[i] = malloc(sizeof(double) * 256);
 
-    for(int i = 0; i < 52;i++)
+    for(int i = 0; i < count1;i++)
     {
         for(int j = 0; j < 256; j++)
         {
             input[i][j] = array_char[i][j];
         }
-    }
+    }		
 
     //double output[4][1];
-    input[0][0] = 0.0;
+    /*input[0][0] = 0.0;
     input[0][1] = 0.0;
     output[0][0] = 0.0;
     input[1][0] = 1.0;
@@ -515,7 +516,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
     output[2][0] = 1.0;
     input[3][0] = 1.0;
     input[3][1] = 1.0;
-    output[3][0] = 0.0;
+    output[3][0] = 0.0;*/
     double error = 0.0;
 
     if(a == 'b')
@@ -530,17 +531,28 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 
         if(a == 't')
         {
-            for(int i = 0; i < 4; i++)
+            for(int i = 0; i < count1; i++)
                 error += Train(input[i], output[i], 0.15, 0.1);
         }
 
-        double networkOutput[1];
+        double networkOutput[count1];
 
-        for(int i = 0; i < 4; i++)
+        for(int i = 0; i < 2; i++) // pour les 2 premiers caractères
         {
             Run(input[i], networkOutput);
-            printf("Pattern : %d : %d XOR %d = %f\n",
-                    i+1, (int)input[i][0], (int)input[i][1], networkOutput[0]);
+            /*printf("Pattern : %d : %d XOR %d = %f\n",
+                    i+1, (int)input[i][0], (int)input[i][1], networkOutput[0]);*/
+
+							printf("Pattern : %d", i+1);
+							//affiche la matrice 256 d'entrée de la lettre sous forme de ligne
+							for(int j = 0; j < 256; j++)
+								printf("%f", input[i][j]);
+							
+							printf("\n");
+							
+							//affiche le tabeau de sortie (tab de count1 cases de 0 avec unique 1)
+							for(int k = 0; k < count1; k++)
+								printf("%f", networkOutput[k]);
         }
 
         printf("\n");
