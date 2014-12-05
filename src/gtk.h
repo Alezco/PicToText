@@ -5,7 +5,7 @@
 #include <gtk/gtk.h>
 
 int main_gtk(int argc, char *argv[]);
-int open_dialog(GtkWidget *widget,gpointer window, gpointer pVbox);
+void open_dialog(gpointer *widget,gpointer window, gpointer pVbox);
 void Quit(gpointer data);
 
 

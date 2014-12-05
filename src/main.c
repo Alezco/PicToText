@@ -11,7 +11,8 @@ int main(int argc, char *argv[])
 {
 	printf("STARTING ...\n");
 
-	if(argc > 2)
+	main_gtk(argc,argv);
+	/*if(argc > 2)
 	{
 		char a = *argv[1];
 		start(argv[2], a);
@@ -23,7 +24,7 @@ int main(int argc, char *argv[])
 	else
 	{
 		start("image/arial.jpg", 'b');
-	}
+	}*/
 
 	/*SDL_Surface *ecran = NULL, *image = NULL;
 		SDL_Rect position;
