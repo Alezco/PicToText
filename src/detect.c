@@ -448,7 +448,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
                 {
                     if (lvl1 == 1)
                     {
-                        //draw(surface, rect_r[k], pixel_green);
+                        draw(surface, rect_r[k], pixel_green);
 
                         squareBorder(surface ,bin, plop, rect_r[k], calcul_m(rect_r[k].h,rect_r[k].w));
                         //print_matrix(plop, calcul_m(rect_r[k].h,rect_r[k].w),calcul_m(rect_r[k].h,rect_r[k].w));
@@ -478,12 +478,12 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
             }
             if (lvl2 == 1)
             {
-                //draw(surface, rect[j], pixel_red);
+                draw(surface, rect[j], pixel_red);
             }
         }
         if (lvl3 == 1)
         {
-            //draw(surface, rect_b[i], pixel_blue);
+            draw(surface, rect_b[i], pixel_blue);
         }
     }
 
@@ -531,8 +531,8 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
             else
                 output[i][j] = 0;
         }
-
-    double **input;
+		
+		double **input;
 
     input = malloc(sizeof(double *) * count1);
 
@@ -573,9 +573,13 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
             Run(input[i], networkOutput);
             
 						printf("Pattern : %d\n", i+1);
-            //affiche la matrice 256 d'entrée de la lettre sous forme de ligne
+            //affiche la matrice 256 d'entrée du caractère
             for(int j = 0; j < 256; j++)
-                printf("%f ", input[i][j]);
+						{
+                printf("%d", (int)(input[i][j]));
+								if((j + 1) % 16 == 0)
+									printf("\n");
+						}
 
             printf("\n");
 
