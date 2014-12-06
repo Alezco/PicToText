@@ -26,14 +26,9 @@ void start(char *path, char a)
     ecran = SDL_SetVideoMode(image->w, image->h, 32, SDL_HWSURFACE);
     SDL_WM_SetCaption("PicToText", NULL);
 
-    //image = IMG_Load("src/image/1.bmp");
-
     processing(image,1,1,1,a);
 
-    //SDL_BlitSurface(image, NULL, ecran, &position);
-
     SDL_Flip(ecran);
-    //pause_p();
 
     SDL_FreeSurface(image);
     SDL_Quit();
@@ -343,7 +338,6 @@ int getspace(SDL_Rect rect[], int size, SDL_Rect t_rect[])
             nr.h = rect[i].h;
             nr.y = rect[i].y;
             nr.w = rect[i+1].x - (rect[i].x+rect[i].w);
-            //printf("%d %d %d %d \n",nr.x,nr.y,nr.w,nr.h );
             t_rect[rect_c] = nr;
             rect_c++;
         }
@@ -367,34 +361,43 @@ void print_double(int size, double matrix[size][256])
     }
 }
 
-void array_t(SDL_Surface *surface, int size, int in[surface->w*surface->h][256], double out[size][256])
+void array_t(SDL_Surface *surface, int size, int in[surface->w*surface->h][256]
+            , double out[size][256])
 {
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < 256; j++)
         {
             if (in[i][j] == 1)
-            {
                 out[i][j] = 1;
-            }
             else
-            {
                 out[i][j] = 0;
-            }
-            //printf("%d %d\n", i, j);
-            //out[i][j] = in[i*size + j];
-            //printf("%d %f", in[0][0], out[0][0]);
         }
     }
 }
 
+void  append(char*s, char c) {
+    int len = strlen(s);
+    s[len] = c;
+    s[len+1] = '\0';
+}
+
+void get_ascii(int nbr, double data[nbr], char *string)
+{
+    int index = 0;
+    for (int i = 0; i < nbr; i++)
+    {
+        printf("var = %f, i = %d\n", data[i], i);
+        if(data[i] > data[index])
+            index = i;
+    }
+    printf("index = %d\n", index);
+    append(string, index+97);
+}
+
 void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 {
-    //convolution(surface, 3, gauss);
-    //grey(surface);
-    //convolution(surface, 3, gauss);
-    //surface = SDL_LoadBMP("data.bmp");
-
+    char *message = malloc(sizeof(char));
     binaire(surface);
     printf("%c",a);
     int test = 0;
@@ -423,7 +426,6 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 
     for (int i = 0; i<rect_size_t_b; i++)
     {
-        //printf("bloc\n");
         int y2[surface->h];
         analysis_y_2(surface, rect_b[i], y2);
         SDL_Rect rect[(rect_b[i].h*rect_b[i].w)/5];
@@ -444,42 +446,31 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
                 SDL_Rect rect_r[(rect_c[z].h*rect_c[z].w)/5];
                 int rect_size_r;
                 rect_size_r = detect_line(y2_2,rect_r,rect_c[z]);
-                for (int k = 0; k < rect_size_r; k++)
+                for (int k = 0; k < rect2_size_t; k++)
                 {
                     if (lvl1 == 1)
                     {
-                        draw(surface, rect_r[k], pixel_green);
+                        draw(surface, rect_c[k], pixel_green);
 
-                        squareBorder(surface ,bin, plop, rect_r[k], calcul_m(rect_r[k].h,rect_r[k].w));
-                        //print_matrix(plop, calcul_m(rect_r[k].h,rect_r[k].w),calcul_m(rect_r[k].h,rect_r[k].w));
-                        //printf("\n\n");
-                        resizePixels(plop,calcul_m(rect_r[k].h,rect_r[k].w),calcul_m(rect_r[k].h,rect_r[k].w), 16, 16, resized);
+                        squareBorder(surface ,bin, plop, rect_c[k], 
+                                     calcul_m(rect_c[k].h,rect_c[k].w));
+                        resizePixels(plop,calcul_m(rect_c[k].h,rect_c[k].w),
+                                     calcul_m(rect_c[k].h,rect_c[k].w), 
+                                     16, 16, resized);
                         printf("\n\n");
-                        //printf("val = %d \n", count1);
                         for(int g = 0; g < 256; g++)
                         {
-                            if (g%16 == 0)
-                            {
-                                //printf("\n");
-                            }
                             int t = resized[g];
                             array_char_0[count1][g] = t;
-                            //printf("%d", array_char_0[count1][g]);
                         }
-                        //array_char_0[count1][] = resized[k];
                         count1++;
-
                         test++;
-
                     }
-                    //printf("zero2 = %d", array_char_0[count1][0]);
                 }
-                //add_array(surface->h*surface->w, array_char, resized, rect_size_r, count);
             }
+
             if (lvl2 == 1)
-            {
                 draw(surface, rect[j], pixel_red);
-            }
         }
         if (lvl3 == 1)
         {
@@ -488,17 +479,6 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
     }
 
     printf("COUNT = %d", count1);
-    /*for (int h = 0; h < count1; h++)
-      {
-      for(int g = 0; g < 256; g++)
-      {
-      if (g%16 == 0)
-      {
-      printf("\n");
-      }
-      printf("%d", array_char_0[h][g]);
-      }
-      }*/
 
     double array_char[count1][256];
 
@@ -506,15 +486,13 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
     print_double(count1, array_char);
 
     SDL_SaveBMP(surface, "sortie");
-    //TEST
 
-    //NEURAL NETWORK PART
     int layerSizes[3];
     if(a == 'b')
     {
         layerSizes[0] = 256;
         layerSizes[1] = 512;
-        layerSizes[2] = 93;
+        layerSizes[2] = 28;
     }
     else
     {
@@ -525,9 +503,6 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 
     Initialize(layerSizes, 3);
 
-    //convert(count1, array_char, input);
-    //double output[52][52];
-
     double **output;
 
     output = malloc(sizeof(double *) * count1);
@@ -535,7 +510,6 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
     for(int i = 0; i < count1; i++)
         output[i] = malloc (sizeof(double) * count1);
 
-    //création de la matrice output identité
     for(int i = 0; i < count1; i++)
         for(int j = 0; j < count1; j++)
         {
@@ -549,7 +523,6 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 
     input = malloc(sizeof(double *) * count1);
 
-    //création du tableau d'input avec toutes les lettres
     for(int i = 0; i < count1; i++)
         input[i] = malloc(sizeof(double) * 256);
 
@@ -586,7 +559,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
             Run(input[i], networkOutput);
 
             printf("Pattern : %d\n", i+1);
-            //affiche la matrice 256 d'entrée du caractère
+
             for(int j = 0; j < 256; j++)
             {
                 printf("%d", (int)(input[i][j]));
@@ -603,20 +576,22 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
             }
             else
             {
-                nbr = 93;
+                nbr = 28;
             }
-            //affiche le tabeau de sortie (tab de count1 cases de 0 avec unique 1)
             for(int k = 0; k < nbr; k++)
                 printf("%f\n", networkOutput[k]);
+            get_ascii(nbr, networkOutput, message);
         }
 
         printf("\n");
 
     } while(error > 0.0001 && count <= max_count);
 
+    printf("%s", message);
+    printf("\n");
+
     if(a == 't')
         Save();
-    //TEST
     SDL_SaveBMP(surface, "sortie");
 }
 
