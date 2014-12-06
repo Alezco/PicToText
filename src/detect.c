@@ -264,7 +264,7 @@ int detect_line(int g_tab_y[], SDL_Rect t_rect[], SDL_Rect rectangle_p)
             rectangle.h = i+rectangle_p.y - rectangle.y + 1;
             rectangle.x = rectangle_p.x;
             rectangle.w = rectangle_p.w + 1;
-						t_rect[count] = rectangle;
+            t_rect[count] = rectangle;
             count++;
             full_y = false;
         }
@@ -393,9 +393,9 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
     //convolution(surface, 3, gauss);
     //grey(surface);
     //convolution(surface, 3, gauss);
-	  //surface = SDL_LoadBMP("data.bmp");
-    
-		binaire(surface);
+    //surface = SDL_LoadBMP("data.bmp");
+
+    binaire(surface);
     printf("%c",a);
     int test = 0;
     int count1 = 0;
@@ -508,14 +508,27 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
     SDL_SaveBMP(surface, "sortie");
     //TEST
 
-		//NEURAL NETWORK PART
-    int layerSizes[3] = {256, 512, count1};
+    //NEURAL NETWORK PART
+    int layerSizes[3];
+    if(a == 'b')
+    {
+        layerSizes[0] = 256;
+        layerSizes[1] = 512;
+        layerSizes[2] = 93;
+    }
+    else
+    {
+        layerSizes[0] = 256;
+        layerSizes[1] = 512;
+        layerSizes[2] = count1;
+    }
+
     Initialize(layerSizes, 3);
 
     //convert(count1, array_char, input);
     //double output[52][52];
 
-		double **output;
+    double **output;
 
     output = malloc(sizeof(double *) * count1);
 
@@ -531,12 +544,12 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
             else
                 output[i][j] = 0;
         }
-		
-		double **input;
+
+    double **input;
 
     input = malloc(sizeof(double *) * count1);
 
-		//création du tableau d'input avec toutes les lettres
+    //création du tableau d'input avec toutes les lettres
     for(int i = 0; i < count1; i++)
         input[i] = malloc(sizeof(double) * 256);
 
@@ -571,20 +584,29 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
         for(int i = 0; i < count1; i++) 
         {
             Run(input[i], networkOutput);
-            
-						printf("Pattern : %d\n", i+1);
+
+            printf("Pattern : %d\n", i+1);
             //affiche la matrice 256 d'entrée du caractère
             for(int j = 0; j < 256; j++)
-						{
+            {
                 printf("%d", (int)(input[i][j]));
-								if((j + 1) % 16 == 0)
-									printf("\n");
-						}
+                if((j + 1) % 16 == 0)
+                    printf("\n");
+            }
 
             printf("\n");
 
+            int nbr;
+            if (a == 't')
+            {
+                nbr = count1;
+            }
+            else
+            {
+                nbr = 93;
+            }
             //affiche le tabeau de sortie (tab de count1 cases de 0 avec unique 1)
-            for(int k = 0; k < count1; k++)
+            for(int k = 0; k < nbr; k++)
                 printf("%f\n", networkOutput[k]);
         }
 
