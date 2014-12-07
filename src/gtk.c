@@ -8,7 +8,7 @@
 #include "detect.h"
 #include "traitement.h"
 
-GtkWidget *pHBox, *text;
+GtkWidget *pHBox, *text, *check1, *check2, *check3;
 gchar *chemin;
 char a;
 #define TAILLE_MAX 1000
@@ -245,6 +245,46 @@ void Quit(gpointer data)
 				break;
 		}
 }
+int activeB2()
+{
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check1)) ||
+	   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check2)) ||
+	   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check3)))
+		return 1;
+	else
+		return 0;
+}
+void activeB()
+{
+	if (activeB2() == 1)
+	{
+		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check1)))
+		{
+			g_print("\nBouton niveau de gris activé!\n");
+			greyscale();
+		}
+		else
+			g_print("\nBouton niveau de gris désactivé\n");
+
+		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check2)))
+			{
+				g_print("\nBouton réduction du bruit activé!\n");
+				bruit();
+			}
+		else
+			g_print("\nBouton réduction du bruit désactivé\n");
+
+		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check3)))
+			{
+				g_print("\nBouton de binarisation activé\n");
+				binarise();
+			}
+		else
+			g_print("\nBouton de binarisation désactivé\n");
+	}
+	else
+		g_print("\nTout les traitements d'images sont désactivés...\n");
+}
 
 int main_gtk(int argc, char *argv[])
 {
@@ -264,7 +304,6 @@ int main_gtk(int argc, char *argv[])
 	GtkWidget *img;
 	GtkWidget *button2;
 	GtkWidget *button3;
-	GtkWidget *check1, *check2, *check3;
 
 	/* Initialise GTK */
 	gtk_init(&argc, &argv);
@@ -319,12 +358,10 @@ int main_gtk(int argc, char *argv[])
 	button2 = gtk_button_new_with_label ("Convertir");
 	gtk_fixed_put(GTK_FIXED(fixed),button2,650,10);
 	gtk_widget_set_size_request(button2,100,30);
-	//gtk_box_pack_start(GTK_BOX(pVBox),button2,FALSE,FALSE,0);
 
 	button3 = gtk_button_new_with_label("Quitter");
 	gtk_fixed_put(GTK_FIXED(fixed),button3,750,10);
 	gtk_widget_set_size_request(button3,100,30);
-	//gtk_box_pack_start(GTK_BOX(pVBox),button3,FALSE,FALSE,0);
 	
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
 					GTK_SIGNAL_FUNC(open_dialog),
@@ -336,20 +373,12 @@ int main_gtk(int argc, char *argv[])
 				  GTK_SIGNAL_FUNC(process),
 				  GTK_OBJECT(window));
 
-	/*
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check2)))
-		bruit();
-	
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check3)))
-		binarise();
-	*/
-	
 	g_signal_connect(check1,"clicked",
-					G_CALLBACK(greyscale), (gpointer) window);
+					G_CALLBACK(activeB), (gpointer) window);
 	g_signal_connect(check2,"clicked",
-					G_CALLBACK(bruit),(gpointer) window);
+					G_CALLBACK(activeB),(gpointer) window);
 	g_signal_connect(check3,"clicked",
-					G_CALLBACK(binarise),(gpointer) window);
+					G_CALLBACK(activeB),(gpointer) window);
 	
 	/* Display the window */
 	gtk_widget_show_all (window);
