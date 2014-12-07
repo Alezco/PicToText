@@ -40,10 +40,7 @@ void open_dialog(gpointer *widget,gpointer window, gpointer pVbox)
 		gtk_widget_destroy(pHBox);
 		gchar* path;
 		pHBox = gtk_hbox_new(FALSE,8);
-		//text = gtk_text_view_new();
-		//text = gtk_text_new(NULL,NULL);
 		text = gtk_entry_new_with_max_length(5000);
-		//gtk_text_set_editable(GTK_TEXT(text),TRUE);
 		gtk_entry_set_text(GTK_ENTRY(text),"hello");
 		gtk_widget_show(text);
 		gtk_widget_set_size_request(text,800,300);
@@ -227,6 +224,7 @@ fclose(file_texte);
 //////////////////////////////////////////////////////////////////
   gtk_entry_set_text(GTK_ENTRY(text),c);
 }
+
 void Quit(gpointer data)
 {
 	GtkWidget *pQuestion;
@@ -263,6 +261,7 @@ int main_gtk(int argc, char *argv[])
 	GtkWidget *window;
 	GtkWidget *pVBox, *fixed;
 	GtkWidget *button;
+	GtkWidget *img;
 	GtkWidget *button2;
 	GtkWidget *button3;
 	GtkWidget *check1, *check2, *check3;
@@ -272,6 +271,7 @@ int main_gtk(int argc, char *argv[])
 	fixed = gtk_fixed_new();
 	text = gtk_text_view_new();
 	pHBox = gtk_hbox_new(FALSE,8);
+	img = gtk_image_new_from_file("image/logo_telechargement.png");
 
 	/* Create a new window */
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -285,6 +285,7 @@ int main_gtk(int argc, char *argv[])
 	gtk_fixed_put(GTK_FIXED(fixed), check1, 480,50);
 	gtk_fixed_put(GTK_FIXED(fixed),check2,650,50);
 	gtk_fixed_put(GTK_FIXED(fixed), check3, 830,50);
+	gtk_fixed_put(GTK_FIXED(fixed), img, 80,0);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check1),FALSE);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check2),FALSE);
@@ -335,12 +336,21 @@ int main_gtk(int argc, char *argv[])
 				  GTK_SIGNAL_FUNC(process),
 				  GTK_OBJECT(window));
 
+	/*
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check2)))
+		bruit();
+	
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check3)))
+		binarise();
+	*/
+	
 	g_signal_connect(check1,"clicked",
 					G_CALLBACK(greyscale), (gpointer) window);
 	g_signal_connect(check2,"clicked",
 					G_CALLBACK(bruit),(gpointer) window);
 	g_signal_connect(check3,"clicked",
 					G_CALLBACK(binarise),(gpointer) window);
+	
 	/* Display the window */
 	gtk_widget_show_all (window);
 	/* Enter the event loop */
