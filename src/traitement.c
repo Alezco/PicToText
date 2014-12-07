@@ -5,6 +5,57 @@
 #include <stdio.h>
 #include "detect.h"
 
+#define Max(x, y) (((x) > (y)) ? (x) : (y))
+#define Min(x, y) (((x) < (y)) ? (x) : (y))
+
+int IsValid(int x, int y, SDL_Surface *surface)
+{
+  return (x >= 0 && y >= 0) && (x < surface->w) && (y < surface->h);
+}
+
+void convolution(SDL_Surface *surf, int size, float mat[][size])
+{
+  printf("start !");
+  SDL_Surface *res;
+  res = SDL_CreateRGBSurface(surf->flags, surf->w, surf->h, 
+                      surf->format->BitsPerPixel, surf->format->Rmask,
+                      surf->format->Gmask, surf->format->Bmask,
+                      surf->format->Amask);
+  
+  Uint32 pixel;
+  Uint8 r,g,b;
+  for (int y = 0; y< surf->h; y++)
+    {
+      for (int x = 0; x< surf->w; x++)
+	{
+	  float acc[] = {0,0,0};
+	  for (int dy = -size/2; dy <= size/2; dy++)
+	    {
+	      for (int dx = -size/2; dx <= size/2; dx++)
+		{
+		  if (IsValid(x + dx, y + dy, surf))
+		    {
+		       pixel = getpixel(surf, x+dx, y+dy);
+		       SDL_GetRGB(pixel, surf->format, &r, &g, &b);
+		       float coeff = mat[dx + size/2][dy + size/2];
+		       
+		       acc[0] += r * coeff;
+		       acc[1] += g * coeff;
+		       acc[2] += b * coeff;
+		    }
+		  for (int z = 0; z < 3; z++)
+		    {
+		      acc[z] = Max(0, Min(255, acc[z]));
+		      putpixel(res,x,y, SDL_MapRGB(res->format,(int)acc[0], (int)acc[1], (int)acc[2]));
+		    }
+		}
+	    }
+	}
+    }
+  SDL_SaveBMP(res, "image_convolution");
+  printf("End");
+}
+
 void grey(SDL_Surface *surface)
 {
   Uint32 pixel, new_pixel;

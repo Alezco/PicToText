@@ -6,7 +6,14 @@
 #include <SDL/SDL_image.h>
 #include <stdbool.h>
 #include "detect.h"
-GtkWidget *pHBox, *view;
+#include "traitement.h"
+
+GtkWidget *pHBox, *text;
+gchar *chemin;
+char a;
+#define TAILLE_MAX 1000
+
+
 void open_dialog(gpointer *widget,gpointer window, gpointer pVbox)
 {
 	GtkWidget *dialog, *image;
@@ -33,18 +40,24 @@ void open_dialog(gpointer *widget,gpointer window, gpointer pVbox)
 		gtk_widget_destroy(pHBox);
 		gchar* path;
 		pHBox = gtk_hbox_new(FALSE,8);
-		view = gtk_text_view_new();
-		gtk_widget_set_size_request(view,800,300);
+		//text = gtk_text_view_new();
+		//text = gtk_text_new(NULL,NULL);
+		text = gtk_entry_new_with_max_length(5000);
+		//gtk_text_set_editable(GTK_TEXT(text),TRUE);
+		gtk_entry_set_text(GTK_ENTRY(text),"hello");
+		gtk_widget_show(text);
+		gtk_widget_set_size_request(text,800,300);
 		path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 		g_print("%s ouvert\n", path);
+		chemin = path;
 		//label = gtk_label_new("PicToTest zone de texte editable");
 		image = gtk_image_new_from_file(path);
 		//gtk_box_pack_start(GTK_BOX(pHBox),label,FALSE,TRUE,0);
 		gtk_box_pack_start(GTK_BOX(pHBox),image,FALSE,TRUE,0);
-		gtk_box_pack_start(GTK_BOX(pHBox),view,FALSE,TRUE,0);
+		gtk_box_pack_start(GTK_BOX(pHBox),text,FALSE,TRUE,0);
 		gtk_container_add(GTK_CONTAINER(pVbox),pHBox);
 		gtk_widget_show_all(pVbox);
-		g_free(path);
+		//g_free(path);
 		gtk_widget_destroy(dialog);
 	}
 	else
@@ -53,9 +66,136 @@ void open_dialog(gpointer *widget,gpointer window, gpointer pVbox)
 			gtk_widget_destroy(dialog);
 		}
 }
+void bruit()
+{
+   g_print("reduction du bruit\n");
+
+   float gauss[][3] = {
+  {1, 1, 1},
+  {1, 2, 1},
+  {1, 1, 1}
+};
+
+
+   SDL_Surface *ecran = NULL, *surface_tmp_c = NULL;
+    SDL_Rect position;
+
+    position.x = 0;
+    position.y = 0;
+
+    SDL_Init(SDL_INIT_VIDEO);
+
+    surface_tmp_c = IMG_Load(chemin);
+
+    ecran = SDL_SetVideoMode(surface_tmp_c->w, surface_tmp_c->h, 32, SDL_HWSURFACE);
+    SDL_WM_SetCaption("PicToText", NULL);
+
+    //IMPORTANT
+    convolution(surface_tmp_c, 3, gauss);
+    SDL_SaveBMP(surface_tmp_c, "image_convolution");
+    //IMPORTANT
+
+    SDL_Flip(ecran);
+
+    SDL_FreeSurface(surface_tmp_c);
+    SDL_Quit();
+
+    GtkWidget *image, *pHbox, *window;
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_default_size(GTK_WINDOW(window),1550,900);
+  gtk_container_set_border_width(GTK_CONTAINER(window),10);
+
+  pHbox = gtk_hbox_new(FALSE,8);
+  image = gtk_image_new_from_file("image_convolution");
+  gtk_box_pack_start(GTK_BOX(pHbox), image, FALSE,TRUE,0);
+  //gtk_box_pack_start(GTK_BOX(pHbox),view,FALSE,TRUE,0);
+  gtk_container_add(GTK_CONTAINER(window), pHbox);
+  //gtk_container_add(GTK_CONTAINER(pHbox), image);
+  gtk_widget_show_all(window);
+}
+
+void binarise()
+{
+   g_print("binarise\n");
+   SDL_Surface *ecran = NULL, *surface_tmp = NULL;
+    SDL_Rect position;
+
+    position.x = 0;
+    position.y = 0;
+
+    SDL_Init(SDL_INIT_VIDEO);
+
+    surface_tmp = IMG_Load(chemin);
+
+    ecran = SDL_SetVideoMode(surface_tmp->w, surface_tmp->h, 32, SDL_HWSURFACE);
+    SDL_WM_SetCaption("PicToText", NULL);
+
+    //IMPORTANT
+    binaire(surface_tmp);
+    SDL_SaveBMP(surface_tmp, "image_binariser");
+    //IMPORTANT
+
+    SDL_Flip(ecran);
+
+    SDL_FreeSurface(surface_tmp);
+    SDL_Quit();
+
+    GtkWidget *image, *pHbox, *window;
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_default_size(GTK_WINDOW(window),1550,900);
+  gtk_container_set_border_width(GTK_CONTAINER(window),10);
+
+  pHbox = gtk_hbox_new(FALSE,8);
+  image = gtk_image_new_from_file("image_binariser");
+  gtk_box_pack_start(GTK_BOX(pHbox), image, FALSE,TRUE,0);
+  //gtk_box_pack_start(GTK_BOX(pHbox),view,FALSE,TRUE,0);
+  gtk_container_add(GTK_CONTAINER(window), pHbox);
+  //gtk_container_add(GTK_CONTAINER(pHbox), image);
+  gtk_widget_show_all(window);
+}
+void greyscale()
+{
+  g_print("greyscale\n");
+  SDL_Surface *ecran = NULL, *surface_tmp_g = NULL;
+    SDL_Rect position;
+
+    position.x = 0;
+    position.y = 0;
+
+    SDL_Init(SDL_INIT_VIDEO);
+
+    surface_tmp_g = IMG_Load(chemin);
+
+    ecran = SDL_SetVideoMode(surface_tmp_g->w, surface_tmp_g->h, 32, SDL_HWSURFACE);
+    SDL_WM_SetCaption("PicToText", NULL);
+
+    //IMPORTANT
+    grey(surface_tmp_g);
+    SDL_SaveBMP(surface_tmp_g, "image_grey");
+    //IMPORTANT
+
+    SDL_Flip(ecran);
+
+    SDL_FreeSurface(surface_tmp_g);
+    SDL_Quit();
+
+    GtkWidget *image, *pHbox, *window;
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_default_size(GTK_WINDOW(window),1550,900);
+  gtk_container_set_border_width(GTK_CONTAINER(window),10);
+
+  pHbox = gtk_hbox_new(FALSE,8);
+  image = gtk_image_new_from_file("image_grey");
+  gtk_box_pack_start(GTK_BOX(pHbox), image, FALSE,TRUE,0);
+  //gtk_box_pack_start(GTK_BOX(pHbox),view,FALSE,TRUE,0);
+  gtk_container_add(GTK_CONTAINER(window), pHbox);
+  //gtk_container_add(GTK_CONTAINER(pHbox), image);
+  gtk_widget_show_all(window);
+}
+
 void process()
 {
-  /*start(); */
+  start(chemin, a);
   GtkWidget *image, *pHbox, *window;
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_default_size(GTK_WINDOW(window),1550,900);
@@ -68,6 +208,24 @@ void process()
   gtk_container_add(GTK_CONTAINER(window), pHbox);
   //gtk_container_add(GTK_CONTAINER(pHbox), image);
   gtk_widget_show_all(window);
+
+  //////////////////////////////////////////////////////////////
+  FILE *file_texte = NULL;
+
+  file_texte = fopen("save/texte.txt", "r"); 
+
+char c[TAILLE_MAX] = "";
+
+if(file_texte != NULL)
+ { 
+    fgets(c, TAILLE_MAX, file_texte);
+ }
+
+fclose(file_texte);
+
+
+//////////////////////////////////////////////////////////////////
+  gtk_entry_set_text(GTK_ENTRY(text),c);
 }
 void Quit(gpointer data)
 {
@@ -92,23 +250,49 @@ void Quit(gpointer data)
 
 int main_gtk(int argc, char *argv[])
 {
+  
+  if (argc > 1)
+    {
+      a = *argv[1];
+    }
+  else
+    {
+      a = 'b';
+    }
 	/* GtkWidget is the storage type for widgets */
 	GtkWidget *window;
 	GtkWidget *pVBox, *fixed;
 	GtkWidget *button;
 	GtkWidget *button2;
 	GtkWidget *button3;
+	GtkWidget *check1, *check2, *check3;
 
 	/* Initialise GTK */
 	gtk_init(&argc, &argv);
 	fixed = gtk_fixed_new();
-	view = gtk_text_view_new();
+	text = gtk_text_view_new();
 	pHBox = gtk_hbox_new(FALSE,8);
 
 	/* Create a new window */
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(window),1550,900);
 	gtk_window_set_title(GTK_WINDOW(window), "PicToText");
+
+	check1 = gtk_check_button_new_with_label("niveau de gris");
+	check2= gtk_check_button_new_with_label("réduction du bruit");
+	check3 = gtk_check_button_new_with_label("binariser");
+
+	gtk_fixed_put(GTK_FIXED(fixed), check1, 480,50);
+	gtk_fixed_put(GTK_FIXED(fixed),check2,650,50);
+	gtk_fixed_put(GTK_FIXED(fixed), check3, 830,50);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check1),FALSE);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check2),FALSE);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check3),FALSE);
+
+	GTK_WIDGET_UNSET_FLAGS(check1, GTK_CAN_FOCUS);
+	GTK_WIDGET_UNSET_FLAGS(check2, GTK_CAN_FOCUS);
+	GTK_WIDGET_UNSET_FLAGS(check3, GTK_CAN_FOCUS);
 
 	gtk_container_set_border_width(GTK_CONTAINER(window),5);
 
@@ -150,6 +334,13 @@ int main_gtk(int argc, char *argv[])
 	gtk_signal_connect_object(GTK_OBJECT(button2),"clicked",
 				  GTK_SIGNAL_FUNC(process),
 				  GTK_OBJECT(window));
+
+	g_signal_connect(check1,"clicked",
+					G_CALLBACK(greyscale), (gpointer) window);
+	g_signal_connect(check2,"clicked",
+					G_CALLBACK(bruit),(gpointer) window);
+	g_signal_connect(check3,"clicked",
+					G_CALLBACK(binarise),(gpointer) window);
 	/* Display the window */
 	gtk_widget_show_all (window);
 	/* Enter the event loop */

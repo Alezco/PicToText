@@ -11,8 +11,8 @@ int main(int argc, char *argv[])
 {
 	printf("STARTING ...\n");
 
-	//main_gtk(argc,argv);
-	if(argc > 2)
+	main_gtk(argc,argv);
+	/*if(argc > 2)
 	{
 		char a = *argv[1];
 		start(argv[2], a);
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 	else if (argc > 1)
 		start(argv[1],'b');
 	else
-		start("image/arial.jpg", 'b');
+	start("image/arial.jpg", 'b');*/
 
 	return EXIT_SUCCESS;
 }

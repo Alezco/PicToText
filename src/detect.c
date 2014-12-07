@@ -392,12 +392,12 @@ void get_ascii(int nbr, double data[nbr], char *string)
             index = i;
     }
     printf("index = %d\n", index);
-    append(string, index+97);
+    printf("%c", index+65);
+    append(string, index + 65);
 }
 
 void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 {
-    char *message = malloc(sizeof(char));
     binaire(surface);
     printf("%c",a);
     int test = 0;
@@ -492,7 +492,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
     {
         layerSizes[0] = 256;
         layerSizes[1] = 512;
-        layerSizes[2] = 28;
+        layerSizes[2] = 12;
     }
     else
     {
@@ -538,7 +538,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 
     if(a == 'b')
         Load();
-
+    char *message = malloc(sizeof(char));
     int max_count = 5000;
     int count = 0;
     do
@@ -576,7 +576,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
             }
             else
             {
-                nbr = 28;
+                nbr = 12;
             }
             for(int k = 0; k < nbr; k++)
                 printf("%f\n", networkOutput[k]);
@@ -587,8 +587,26 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 
     } while(error > 0.0001 && count <= max_count);
 
-    printf("%s", message);
+    for (size_t k = 6; k < strlen(message); k++)
+      {
+	int f = k;
+	printf("%c", message[f]);
+      }
+    printf("%s\n%lu", message, strlen(message));
     printf("\n");
+ ////////////////////////////////////////
+    FILE *file = NULL;
+
+    file = fopen("save/texte.txt", "w+");
+
+    if(file != NULL)
+      {
+	fprintf(file, "%s\n", message);
+	fclose(file);
+      }
+    else
+      printf("Impossible d'ouvrir message.txt");
+/////////////////////////////////////
 
     if(a == 't')
         Save();
