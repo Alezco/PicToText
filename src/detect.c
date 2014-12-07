@@ -492,7 +492,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 	{
 		layerSizes[0] = 256;
 		layerSizes[1] = 512;
-		layerSizes[2] = 12;
+		layerSizes[2] = 21;
 	}
 	else
 	{
@@ -576,7 +576,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 			}
 			else
 			{
-				nbr = 12;
+				nbr = 21;
 			}
 			for(int k = 0; k < nbr; k++)
 				printf("%f\n", networkOutput[k]);
