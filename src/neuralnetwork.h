@@ -13,7 +13,6 @@ double Train(double *input, double *desired,
 						 double TrainingRate, double Momentum);
 void Save();
 void Load();
-int main_neural(int size, char a, int input2[size][256]);
 void convert(int size, int input[size][256], double res[size][256]);
 
 #endif

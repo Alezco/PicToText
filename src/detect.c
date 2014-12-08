@@ -492,7 +492,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 	{
 		layerSizes[0] = 256;
 		layerSizes[1] = 512;
-		layerSizes[2] = 21;
+		layerSizes[2] = 22;
 	}
 	else
 	{
@@ -576,7 +576,7 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 			}
 			else
 			{
-				nbr = 21;
+				nbr = 22;
 			}
 			for(int k = 0; k < nbr; k++)
 				printf("%f\n", networkOutput[k]);
@@ -594,14 +594,12 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 	}
 	printf("%s\n%lu", message, strlen(message));
 	printf("\n");
-	////////////////////////////////////////
 	FILE *file = NULL;
 
 	file = fopen("save/texte.txt", "w+");
 
 	if(file != NULL)
 	{
-		//fprintf(file, "%s\n", message);
 		for(size_t k = 6; k < strlen(message); k++)
 		{
 			int f = k;
@@ -611,7 +609,6 @@ void processing(SDL_Surface *surface, int lvl1, int lvl2, int lvl3, char a)
 	}
 	else
 		printf("Impossible d'ouvrir message.txt");
-	/////////////////////////////////////
 
 	if(a == 't')
 		Save();
